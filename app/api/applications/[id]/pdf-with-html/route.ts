@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-import puppeteer from 'puppeteer-core';
+
 import connectDB from '@/lib/mongodb';
 import Application from '@/models/Application';
 import path from 'path';
@@ -10,7 +10,7 @@ import { PDFDocument, PDFImage } from 'pdf-lib';
 import { renderApplicantFormHTML, renderApartmentFormHTML } from '@/lib/html-renderer';
 import { page21ImageCoordinates } from '@/lib/pdf-coordinates';
 
-// Dynamic imports for Puppeteer - use serverless version on Vercel, regular on local
+// Detect production environment
 const isProduction = process.env.VERCEL === '1';
 
 export async function GET(
@@ -117,15 +117,13 @@ export async function GET(
     if (isProduction) {
       // Production: Use puppeteer-core with @sparticuz/chromium (Vercel-safe)
       puppeteerInstance = (await import('puppeteer-core')).default;
-      const chromium = (await import('@sparticuz/chromium')).default;
-
-const browser = await puppeteer.launch({
-  args: chromium.args,
-  executablePath: await chromium.executablePath(),
-  headless: true,
-});
-
-      
+      chromiumInstance = await import('@sparticuz/chromium');
+      browser = await puppeteerInstance.launch({
+        args: chromiumInstance.default.args,
+        defaultViewport: chromiumInstance.default.defaultViewport,
+        executablePath: await chromiumInstance.default.executablePath(),
+        headless: chromiumInstance.default.headless,
+      });
     } else {
       // Local development: Use regular Puppeteer (has Chromium bundled)
       puppeteerInstance = (await import('puppeteer')).default;
