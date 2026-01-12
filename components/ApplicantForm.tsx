@@ -118,13 +118,12 @@ export default function ApplicantForm({
         {/* Left Column - Form Fields */}
         <div className="md:col-span-2 space-y-4">
           {/* Title */}
-          <div>            
+          <div>
             <select
               value={data.title || ''}
               onChange={(e) => handleFieldChange('title', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.title ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.title ? 'border-red-500' : 'border-gray-300'
+                }`}
             >
               <option value="">Select Title</option>
               <option value="Mr.">Mr.</option>
@@ -143,9 +142,8 @@ export default function ApplicantForm({
               type="text"
               value={data.name || ''}
               onChange={(e) => handleFieldChange('name', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.name ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.name ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter full name"
               maxLength={50}
             />
@@ -154,27 +152,25 @@ export default function ApplicantForm({
 
           {/* Son/Wife/Daughter of */}
           <div>
-          <select
+            <select
               value={data.relation || ''}
               onChange={(e) => handleFieldChange('relation', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.relation ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.relation ? 'border-red-500' : 'border-gray-300'
+                }`}
             >
               <option value="">Select Relation</option>
               <option value="Son of">Son of</option>
               <option value="Daughter of">Daughter of</option>
               <option value="Wife of">Wife of</option>
             </select>
-            </div>
-            <div>
+          </div>
+          <div>
             <input
               type="text"
               value={data.sonWifeDaughterOf || ''}
               onChange={(e) => handleFieldChange('sonWifeDaughterOf', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.sonWifeDaughterOf ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.sonWifeDaughterOf ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter relationship and name"
               maxLength={50}
             />
@@ -190,9 +186,8 @@ export default function ApplicantForm({
               type="text"
               value={data.nationality || ''}
               onChange={(e) => handleFieldChange('nationality', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.nationality ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.nationality ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter nationality"
               maxLength={30}
             />
@@ -208,27 +203,31 @@ export default function ApplicantForm({
                 type="text"
                 value={data.age || ''}
                 onChange={(e) => handleFieldChange('age', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.age ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter age"
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.age ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter age in years"
                 maxLength={3}
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Date of Birth (DOB) <span className="text-red-500">*</span>
               </label>
+
               <input
                 type="date"
                 value={data.dob || ''}
+                max={new Date(
+                  new Date().setFullYear(new Date().getFullYear() - 18)
+                )
+                  .toISOString()
+                  .split('T')[0]}
                 onChange={(e) => handleFieldChange('dob', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.dob ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.dob ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
             </div>
+
           </div>
 
           {/* Profession */}
@@ -240,9 +239,8 @@ export default function ApplicantForm({
               type="text"
               value={data.profession || ''}
               onChange={(e) => handleFieldChange('profession', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.profession ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.profession ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter profession"
               maxLength={50}
             />
@@ -257,9 +255,8 @@ export default function ApplicantForm({
               type="text"
               value={data.aadhaar || ''}
               onChange={(e) => handleFieldChange('aadhaar', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.aadhaar ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.aadhaar ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter 12-digit Aadhaar"
               maxLength={12}
             />
@@ -313,18 +310,24 @@ export default function ApplicantForm({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Income Tax Permanent Account No. (PAN) <span className="text-red-500">*</span>
             </label>
+
             <input
               type="text"
               value={data.pan || ''}
-              onChange={(e) => handleFieldChange('pan', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase ${
-                errors.pan ? 'border-red-500' : 'border-gray-300'
-              }`}
+              onChange={(e) =>
+                handleFieldChange('pan', e.target.value.toUpperCase())
+              }
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.pan ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="ABCDE1234F"
               maxLength={10}
             />
-            {errors.pan && <p className="mt-1 text-sm text-red-500">{errors.pan}</p>}
+
+            {errors.pan && (
+              <p className="mt-1 text-sm text-red-500">{errors.pan}</p>
+            )}
           </div>
+
 
           {/* IT Ward/Circle */}
           <div>
@@ -366,9 +369,8 @@ export default function ApplicantForm({
                 type="tel"
                 value={data.telNo || ''}
                 onChange={(e) => handleFieldChange('telNo', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.telNo ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.telNo ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter landline number"
                 maxLength={15}
               />
@@ -383,9 +385,8 @@ export default function ApplicantForm({
                 type="tel"
                 value={data.phone || ''}
                 onChange={(e) => handleFieldChange('phone', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter 10-digit mobile"
                 maxLength={10}
               />
@@ -402,9 +403,8 @@ export default function ApplicantForm({
               type="email"
               value={data.email || ''}
               onChange={(e) => handleFieldChange('email', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter email address"
             />
             {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}

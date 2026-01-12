@@ -148,14 +148,7 @@ export default function DynamicFormViewer({
 
   return (
     <div className="w-full">
-      {/* PDF Info */}
-      {numPages > 0 && (
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-800">
-            📄 Total Pages: <strong>{numPages}</strong> | Applicants: <strong>{applicantCount}</strong>
-          </p>
-        </div>
-      )}
+     
 
       <div ref={containerRef} className="w-full">
         <Document
