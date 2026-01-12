@@ -112,9 +112,9 @@ export async function GET(
     let chromiumInstance: any;
     
     if (isProduction) {
-      // Production: Use puppeteer-core with @sparticuz/chromium
+      // Production: Use puppeteer-core with @sparticuz/chromium-min (optimized for serverless)
       puppeteerInstance = (await import('puppeteer-core')).default;
-      chromiumInstance = await import('@sparticuz/chromium');
+      chromiumInstance = await import('@sparticuz/chromium-min');
       browser = await puppeteerInstance.launch({
         args: chromiumInstance.default.args,
         defaultViewport: chromiumInstance.default.defaultViewport,
