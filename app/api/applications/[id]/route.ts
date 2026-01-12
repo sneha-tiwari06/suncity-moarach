@@ -23,21 +23,30 @@ export async function GET(
 
     let pdfBytes: Buffer;
 
-    // Try to read from filesystem first (new method - avoids 16MB limit)
-    if (application.pdfPath) {
-      const pdfFilePath = path.join(process.cwd(), 'public', application.pdfPath);
-      if (fs.existsSync(pdfFilePath)) {
-        pdfBytes = fs.readFileSync(pdfFilePath);
-      } else {
+    // Try pdfBuffer first (primary method - works on Vercel)
+    if (application.pdfBuffer) {
+      pdfBytes = Buffer.from(application.pdfBuffer, 'base64');
+    } 
+    // Fallback to filesystem (for local development or legacy data)
+    else if (application.pdfPath) {
+      try {
+        const pdfFilePath = path.join(process.cwd(), 'public', application.pdfPath);
+        if (fs.existsSync(pdfFilePath)) {
+          pdfBytes = fs.readFileSync(pdfFilePath);
+        } else {
+          return NextResponse.json(
+            { error: 'PDF file not found on server' },
+            { status: 404 }
+          );
+        }
+      } catch (error) {
+        // If filesystem read fails (e.g., on Vercel), return error
+        console.error('Error reading PDF from filesystem:', error);
         return NextResponse.json(
-          { error: 'PDF file not found on server' },
+          { error: 'PDF not accessible. Filesystem storage not available on this server.' },
           { status: 404 }
         );
       }
-    } 
-    // Fallback to pdfBuffer (old method - for backward compatibility)
-    else if (application.pdfBuffer) {
-      pdfBytes = Buffer.from(application.pdfBuffer, 'base64');
     } else {
       return NextResponse.json(
         { error: 'PDF not found for this application' },

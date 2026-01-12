@@ -72,25 +72,22 @@ export async function POST(request: NextRequest) {
       getImageForBHK
     );
 
-    // Save PDF to filesystem instead of MongoDB (to avoid 16MB limit)
-    const pdfsDir = path.join(process.cwd(), 'public', 'pdfs');
-    if (!fs.existsSync(pdfsDir)) {
-      fs.mkdirSync(pdfsDir, { recursive: true });
+    // Check PDF size (MongoDB has 16MB document limit, base64 increases size by ~33%)
+    // Warn if PDF is too large (15MB raw = ~20MB base64, so we check for 14MB to be safe)
+    const pdfSizeMB = pdfBytes.length / (1024 * 1024);
+    if (pdfSizeMB > 14) {
+      console.warn(`PDF size (${pdfSizeMB.toFixed(2)}MB) may exceed MongoDB 16MB limit when base64 encoded`);
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const randomId = Math.random().toString(36).substring(2, 9);
-    const pdfFilename = `application-${timestamp}-${randomId}.pdf`;
-    const pdfFilePath = path.join(pdfsDir, pdfFilename);
-    
-    // Write PDF to filesystem
-    fs.writeFileSync(pdfFilePath, pdfBytes);
+    // Store PDF as base64 in MongoDB (Vercel doesn't support filesystem writes)
+    // Note: MongoDB has a 16MB document limit, so very large PDFs may fail
+    // For larger PDFs, consider using cloud storage (S3, Cloudinary, etc.)
+    const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
 
-    // Save to database WITHOUT pdfBuffer (store path instead to avoid size limit)
+    // Save to database with pdfBuffer (base64 encoded)
     const application = await Application.create({
       formData: JSON.stringify(formData),
-      pdfPath: `/pdfs/${pdfFilename}`, // Store path instead of buffer
+      pdfBuffer: pdfBase64, // Store as base64 (works on Vercel, but has 16MB MongoDB limit)
       applicantCount,
       bhkType,
     });
