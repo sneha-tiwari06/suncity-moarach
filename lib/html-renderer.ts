@@ -72,12 +72,15 @@ function renderCharacterBoxesHTML(value: string, boxCount: number = 20, boxWidth
 
 /**
  * Render signature footer HTML - matches preview page exactly
+ * Shows all available signatures (first, second, third) on all pages
  */
 function renderSignatureFooterHTML(formData: FormData): string {
   const hasFirstSignature = formData.applicants[0]?.signature;
   const hasSecondSignature = formData.applicants[1]?.signature;
+  const hasThirdSignature = formData.applicants[2]?.signature;
 
-  if (!hasFirstSignature && !hasSecondSignature) return '';
+  // Show all available signatures on all pages
+  if (!hasFirstSignature && !hasSecondSignature && !hasThirdSignature) return '';
 
   let html = '<div style="padding-top: 12px; display: flex; align-items: flex-start; gap: 40px; align-self: end;">';
 
@@ -110,6 +113,22 @@ function renderSignatureFooterHTML(formData: FormData): string {
         </div>
         <div style="border: 1px dashed #ee1e23; background-color: white; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
           <img src="${formData.applicants[1].signature}" alt="Second Applicant Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+        </div>
+      </div>
+    `;
+  }
+
+  if (hasThirdSignature) {
+    html += `
+      <div>
+        <div style="margin-bottom: 4px; text-align: center;">
+          <span style="color: #58595b; font-style: italic; font-size: 11px;">Third Applicant, if any</span>
+        </div>
+        <div style="margin-bottom: 4px;">
+          <label style="font-weight: bold; color: #58595b; font-size: 11px;">Signature:</label>
+        </div>
+        <div style="border: 1px dashed #ee1e23; background-color: white; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
+          <img src="${formData.applicants[2].signature}" alt="Third Applicant Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
         </div>
       </div>
     `;
@@ -315,7 +334,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
 
           <div class="fields-area">
             <h2 style=" text-transform: uppercase; font-size: 12px; margin: 0;">
-                ${applicantNumber}. ${applicantNumber === 1 ? 'SOLE OR FIRST APPLICANT(S):-' : `JOINT APPLICANT ${applicantNumber - 1}:-`}
+                ${applicantNumber}. ${applicantNumber === 1 ? 'APPLICANT 1:-' : applicantNumber === 2 ? 'Second Applicant:-' : 'Third Applicant:-'}
               </h2>
             <div style="display: flex; gap: 12px;">
               <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
@@ -420,9 +439,9 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           </div>
 
           ${applicantNumber === 3 ? `
-            <div class="fields-area" style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #58595b;">
-              <h2 style="text-transform: uppercase; font-size: 12px; margin: 0 0 12px;">OR</h2>
-              <p style="font-size: 11px; font-style: italic; color: #58595b; margin-bottom: 12px;">
+            <div class="fields-area" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #58595b;">
+              <h2 style="text-transform: uppercase; font-size: 12px;">OR</h2>
+              <p style="font-size: 11px; font-style: italic; color: #58595b; ">
                 [If the allottee is company, firm, HUF, association / society]
               </p>
               
@@ -454,7 +473,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                 
                 <div class="field-row">
                   <div class="label" style="width: calc(${APPLICANT_LABEL_WIDTH}px * 2); min-width: calc(${APPLICANT_LABEL_WIDTH}px * 2);">Board Resolution dated/Power of Attorney:</div>
-                  ${renderCharacterBoxesHTML(applicant.boardResolutionDate || '', 28, APPLICANT_BOX_WIDTH)}
+                  ${renderCharacterBoxesHTML(applicant.boardResolutionDate || '', 23, APPLICANT_BOX_WIDTH)}
                 </div>
                 
                 <div class="field-row">
@@ -466,13 +485,13 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                   <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
                     <div class="field-row">
                       <div class="label">Tel No.:</div>
-                      ${renderCharacterBoxesHTML(applicant.companyTelNo || '', 28, APPLICANT_BOX_WIDTH)}
+                      ${renderCharacterBoxesHTML(applicant.companyTelNo || '', 10, APPLICANT_BOX_WIDTH)}
                     </div>
                   </div>
                   <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
                     <div class="field-row">
                       <div class="label">Mobile No.:</div>
-                      ${renderCharacterBoxesHTML(applicant.companyMobileNo || '', 28, APPLICANT_BOX_WIDTH)}
+                      ${renderCharacterBoxesHTML(applicant.companyMobileNo || '', 10, APPLICANT_BOX_WIDTH)}
                     </div>
                   </div>
                 </div>
@@ -481,13 +500,13 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                   <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
                     <div class="field-row">
                       <div class="label">E-mail ID:</div>
-                      ${renderCharacterBoxesHTML(applicant.companyEmail || '', 28, APPLICANT_BOX_WIDTH)}
+                      ${renderCharacterBoxesHTML(applicant.companyEmail || '', 22, APPLICANT_BOX_WIDTH)}
                     </div>
                   </div>
                   <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
                     <div class="field-row">
                       <div class="label">Fax No.:</div>
-                      ${renderCharacterBoxesHTML(applicant.companyFaxNo || '', 28, APPLICANT_BOX_WIDTH)}
+                      ${renderCharacterBoxesHTML(applicant.companyFaxNo || '', 20, APPLICANT_BOX_WIDTH)}
                     </div>
                   </div>
                 </div>
