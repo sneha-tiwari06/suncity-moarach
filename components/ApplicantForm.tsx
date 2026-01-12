@@ -21,6 +21,24 @@ export default function ApplicantForm({
 }: ApplicantFormProps) {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  // Calculate age from date of birth
+  const calculateAge = (dob: string): string => {
+    if (!dob) return '';
+    
+    const birthDate = new Date(dob);
+    const today = new Date();
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't occurred this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age > 0 ? age.toString() : '';
+  };
+
   const handleFieldChange = (field: keyof ApplicantData, value: any) => {
     let formattedValue: any = value;
 
@@ -29,12 +47,45 @@ export default function ApplicantForm({
       formattedValue = formatAadhaar(value);
     } else if (field === 'pan') {
       formattedValue = formatPAN(value);
-    } else if (field === 'phone' || field === 'telNo') {
+    } else if (field === 'phone' || field === 'telNo' || field === 'companyTelNo' || field === 'companyMobileNo') {
       formattedValue = formatPhone(value);
     } else if (field === 'age') {
       formattedValue = value.replace(/\D/g, '').slice(0, 3);
     } else if (field === 'pincode') {
       formattedValue = value.replace(/\D/g, '').slice(0, 6);
+    } else if (field === 'dob') {
+      // Auto-calculate age when DOB changes
+      const calculatedAge = calculateAge(value);
+      if (calculatedAge) {
+        // Update both DOB and age
+        const updatedData = {
+          ...data,
+          dob: value,
+          age: calculatedAge,
+        };
+        
+        // Validate both fields
+        const dobError = validateField('dob', value);
+        const ageError = validateField('age', calculatedAge);
+        
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          if (dobError) {
+            newErrors.dob = dobError;
+          } else {
+            delete newErrors.dob;
+          }
+          if (ageError) {
+            newErrors.age = ageError;
+          } else {
+            delete newErrors.age;
+          }
+          return newErrors;
+        });
+        
+        onChange(updatedData);
+        return;
+      }
     }
 
     // Validate
@@ -63,10 +114,10 @@ export default function ApplicantForm({
     if (field === 'pan' && value && !validatePAN(value)) {
       return 'Invalid PAN number (format: ABCDE1234F)';
     }
-    if ((field === 'phone' || field === 'telNo') && value && !validatePhone(value)) {
+    if ((field === 'phone' || field === 'telNo' || field === 'companyTelNo' || field === 'companyMobileNo') && value && !validatePhone(value)) {
       return 'Invalid phone number (must be 10 digits)';
     }
-    if (field === 'email' && value && !validateEmail(value)) {
+    if ((field === 'email' || field === 'companyEmail') && value && !validateEmail(value)) {
       return 'Invalid email address';
     }
     return '';
@@ -462,6 +513,181 @@ export default function ApplicantForm({
             />
             {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
           </div>
+
+          {/* Company/Firm/HUF Fields - Only for Third Applicant */}
+          {applicantNumber === 3 && (
+            <>
+              <div className="mt-8 pt-6 border-t-4 border-gray-400">
+                <div className="mb-4">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">OR</h3>
+                  <p className="text-sm text-gray-600 italic mb-4">
+                    [If the allottee is company, firm, HUF, association / society]
+                  </p>
+                </div>
+
+                {/* M/s. */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    M/s.
+                  </label>
+                  <input
+                    type="text"
+                    value={data.companyName || ''}
+                    onChange={(e) => handleFieldChange('companyName', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter company/firm name"
+                    maxLength={100}
+                  />
+                </div>
+
+                {/* Reg. Office/Corporate Office */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Reg. Office/Corporate Office
+                  </label>
+                  <input
+                    type="text"
+                    value={data.regOfficeLine1 || ''}
+                    onChange={(e) => handleFieldChange('regOfficeLine1', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                    placeholder="Line 1"
+                    maxLength={100}
+                  />
+                  <input
+                    type="text"
+                    value={data.regOfficeLine2 || ''}
+                    onChange={(e) => handleFieldChange('regOfficeLine2', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Line 2"
+                    maxLength={100}
+                  />
+                </div>
+
+                {/* Authorized Signatory */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Authorized Signatory
+                  </label>
+                  <input
+                    type="text"
+                    value={data.authorizedSignatoryLine1 || ''}
+                    onChange={(e) => handleFieldChange('authorizedSignatoryLine1', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                    placeholder="Line 1"
+                    maxLength={100}
+                  />
+                  <input
+                    type="text"
+                    value={data.authorizedSignatoryLine2 || ''}
+                    onChange={(e) => handleFieldChange('authorizedSignatoryLine2', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Line 2"
+                    maxLength={100}
+                  />
+                </div>
+
+                {/* Board Resolution dated/Power of Attorney */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Board Resolution dated/Power of Attorney
+                  </label>
+                  <input
+                    type="text"
+                    value={data.boardResolutionDate || ''}
+                    onChange={(e) => handleFieldChange('boardResolutionDate', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter date or reference"
+                    maxLength={100}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    (attach a certified true copy of the Board Resolution/Power of Attorney)
+                  </p>
+                </div>
+
+                {/* PAN No./TIN No. */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    PAN No./TIN No.
+                  </label>
+                  <input
+                    type="text"
+                    value={data.companyPanOrTin || ''}
+                    onChange={(e) => handleFieldChange('companyPanOrTin', e.target.value.toUpperCase())}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.companyPanOrTin ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                    placeholder="Enter PAN or TIN number"
+                    maxLength={20}
+                  />
+                  {errors.companyPanOrTin && <p className="mt-1 text-sm text-red-500">{errors.companyPanOrTin}</p>}
+                </div>
+
+                {/* Tel No. and Mobile No. */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tel No.
+                    </label>
+                    <input
+                      type="tel"
+                      value={data.companyTelNo || ''}
+                      onChange={(e) => handleFieldChange('companyTelNo', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.companyTelNo ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      placeholder="Enter telephone number"
+                      maxLength={15}
+                    />
+                    {errors.companyTelNo && <p className="mt-1 text-sm text-red-500">{errors.companyTelNo}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Mobile No.
+                    </label>
+                    <input
+                      type="tel"
+                      value={data.companyMobileNo || ''}
+                      onChange={(e) => handleFieldChange('companyMobileNo', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.companyMobileNo ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      placeholder="Enter mobile number"
+                      maxLength={10}
+                    />
+                    {errors.companyMobileNo && <p className="mt-1 text-sm text-red-500">{errors.companyMobileNo}</p>}
+                  </div>
+                </div>
+
+                {/* E-mail ID and Fax No. */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      E-mail ID
+                    </label>
+                    <input
+                      type="email"
+                      value={data.companyEmail || ''}
+                      onChange={(e) => handleFieldChange('companyEmail', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.companyEmail ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      placeholder="Enter email address"
+                    />
+                    {errors.companyEmail && <p className="mt-1 text-sm text-red-500">{errors.companyEmail}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Fax No.
+                    </label>
+                    <input
+                      type="tel"
+                      value={data.companyFaxNo || ''}
+                      onChange={(e) => handleFieldChange('companyFaxNo', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter fax number"
+                      maxLength={15}
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right Column - Photo Upload */}

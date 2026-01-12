@@ -35,6 +35,19 @@ export interface ApplicantData {
   // Signature - Each applicant has their own signature
   signature?: string; // Base64 encoded signature image
   
+  // Company/Firm/HUF Fields (for third applicant only)
+  companyName?: string; // M/s.
+  regOfficeLine1?: string; // Reg. Office/Corporate Office - Line 1
+  regOfficeLine2?: string; // Reg. Office/Corporate Office - Line 2
+  authorizedSignatoryLine1?: string; // Authorized Signatory - Line 1
+  authorizedSignatoryLine2?: string; // Authorized Signatory - Line 2
+  boardResolutionDate?: string; // Board Resolution dated/Power of Attorney
+  companyPanOrTin?: string; // PAN No./TIN No.
+  companyTelNo?: string; // Tel No. (for company)
+  companyMobileNo?: string; // Mobile No. (for company)
+  companyEmail?: string; // E-mail ID (for company)
+  companyFaxNo?: string; // Fax No.
+  
   [key: string]: any; // For additional fields
 }
 

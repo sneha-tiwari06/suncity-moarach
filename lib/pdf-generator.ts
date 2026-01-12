@@ -206,6 +206,19 @@ function mapFieldName(pdfFieldName: string): string {
     'applicant3TelNo': 'telNo',
     'applicant3Phone': 'phone',
     'applicant3Email': 'email',
+    
+    // Applicant 3 Company/Firm/HUF fields
+    'applicant3CompanyName': 'companyName',
+    'applicant3RegOfficeLine1': 'regOfficeLine1',
+    'applicant3RegOfficeLine2': 'regOfficeLine2',
+    'applicant3AuthorizedSignatoryLine1': 'authorizedSignatoryLine1',
+    'applicant3AuthorizedSignatoryLine2': 'authorizedSignatoryLine2',
+    'applicant3BoardResolutionDate': 'boardResolutionDate',
+    'applicant3CompanyPanOrTin': 'companyPanOrTin',
+    'applicant3CompanyTelNo': 'companyTelNo',
+    'applicant3CompanyMobileNo': 'companyMobileNo',
+    'applicant3CompanyEmail': 'companyEmail',
+    'applicant3CompanyFaxNo': 'companyFaxNo',
   };
   
   // Try direct mapping first

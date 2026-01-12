@@ -419,6 +419,86 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
             </div>
           </div>
 
+          ${applicantNumber === 3 ? `
+            <div class="fields-area" style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #58595b;">
+              <h2 style="text-transform: uppercase; font-size: 12px; margin: 0 0 12px;">OR</h2>
+              <p style="font-size: 11px; font-style: italic; color: #58595b; margin-bottom: 12px;">
+                [If the allottee is company, firm, HUF, association / society]
+              </p>
+              
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div class="field-row">
+                  <div class="label">M/s.:</div>
+                  ${renderCharacterBoxesHTML(applicant.companyName || '', 28, APPLICANT_BOX_WIDTH)}
+                </div>
+                
+                <div class="field-row" style="align-items: flex-start;">
+                  <div class="label" style="padding-top: 4px;">Reg. Office/Corporate Office:</div>
+                  <div class="multi-line-field">
+                    ${Array.from({ length: 2 }, (_, i) => {
+                      const lineValue = i === 0 ? (applicant.regOfficeLine1 || '') : (applicant.regOfficeLine2 || '');
+                      return `<div>${renderCharacterBoxesHTML(lineValue, 28, APPLICANT_BOX_WIDTH)}</div>`;
+                    }).join('')}
+                  </div>
+                </div>
+                
+                <div class="field-row" style="align-items: flex-start;">
+                  <div class="label" style="padding-top: 4px;">Authorized Signatory:</div>
+                  <div class="multi-line-field">
+                    ${Array.from({ length: 2 }, (_, i) => {
+                      const lineValue = i === 0 ? (applicant.authorizedSignatoryLine1 || '') : (applicant.authorizedSignatoryLine2 || '');
+                      return `<div>${renderCharacterBoxesHTML(lineValue, 28, APPLICANT_BOX_WIDTH)}</div>`;
+                    }).join('')}
+                  </div>
+                </div>
+                
+                <div class="field-row">
+                  <div class="label" style="width: calc(${APPLICANT_LABEL_WIDTH}px * 2); min-width: calc(${APPLICANT_LABEL_WIDTH}px * 2);">Board Resolution dated/Power of Attorney:</div>
+                  ${renderCharacterBoxesHTML(applicant.boardResolutionDate || '', 28, APPLICANT_BOX_WIDTH)}
+                </div>
+                
+                <div class="field-row">
+                  <div class="label">PAN No./TIN No.:</div>
+                  ${renderCharacterBoxesHTML(applicant.companyPanOrTin || '', 28, APPLICANT_BOX_WIDTH)}
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                    <div class="field-row">
+                      <div class="label">Tel No.:</div>
+                      ${renderCharacterBoxesHTML(applicant.companyTelNo || '', 28, APPLICANT_BOX_WIDTH)}
+                    </div>
+                  </div>
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                    <div class="field-row">
+                      <div class="label">Mobile No.:</div>
+                      ${renderCharacterBoxesHTML(applicant.companyMobileNo || '', 28, APPLICANT_BOX_WIDTH)}
+                    </div>
+                  </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                    <div class="field-row">
+                      <div class="label">E-mail ID:</div>
+                      ${renderCharacterBoxesHTML(applicant.companyEmail || '', 28, APPLICANT_BOX_WIDTH)}
+                    </div>
+                  </div>
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                    <div class="field-row">
+                      <div class="label">Fax No.:</div>
+                      ${renderCharacterBoxesHTML(applicant.companyFaxNo || '', 28, APPLICANT_BOX_WIDTH)}
+                    </div>
+                  </div>
+                </div>
+                
+                <p style="font-size: 10px; color: #58595b; margin-top: 6px; font-style: italic;">
+                  (attach a certified true copy of the Board Resolution/Power of Attorney)
+                </p>
+              </div>
+            </div>
+          ` : ''}
+
           ${renderSignatureFooterHTML(formData)}
         </div>
       </main>
