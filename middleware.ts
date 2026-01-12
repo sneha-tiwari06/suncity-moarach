@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin')) {
     const token = request.cookies.get('admin_token');
 
-    // If no token, redirect to login
+    // If no token, redisrect to login
     if (!token) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
