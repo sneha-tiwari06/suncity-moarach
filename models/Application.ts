@@ -8,7 +8,8 @@ if (typeof mongoose.models === 'undefined') {
 export interface IApplication extends Document {
   formData: string; // JSON string of form data
   pdfPath?: string; // Path to PDF file in filesystem (instead of buffer to avoid 16MB limit)
-  pdfBuffer?: string; // Base64 encoded PDF (deprecated - use pdfPath instead)
+  pdfBuffer?: string; // Base64 encoded PDF (deprecated - use pdfUrl instead)
+  pdfUrl?: string; // URL to PDF in cloud storage (Vercel Blob, S3, etc.) - preferred method
   createdAt: Date;
   updatedAt: Date;
   applicantCount: number;
@@ -26,6 +27,10 @@ const ApplicationSchema: Schema = new Schema(
       required: false,
     },
     pdfBuffer: {
+      type: String,
+      required: false,
+    },
+    pdfUrl: {
       type: String,
       required: false,
     },

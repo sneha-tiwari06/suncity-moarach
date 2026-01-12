@@ -23,8 +23,25 @@ export async function GET(
 
     let pdfBytes: Buffer;
 
-    // Try pdfBuffer first (primary method - works on Vercel)
-    if (application.pdfBuffer) {
+    // Try pdfUrl first (preferred method - uses cloud storage, no size limit)
+    if (application.pdfUrl) {
+      try {
+        const response = await fetch(application.pdfUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch PDF from storage: ${response.statusText}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        pdfBytes = Buffer.from(arrayBuffer);
+      } catch (error) {
+        console.error('Error fetching PDF from cloud storage:', error);
+        return NextResponse.json(
+          { error: 'Failed to retrieve PDF from storage' },
+          { status: 500 }
+        );
+      }
+    }
+    // Fallback to pdfBuffer (legacy support for old records)
+    else if (application.pdfBuffer) {
       pdfBytes = Buffer.from(application.pdfBuffer, 'base64');
     } 
     // Fallback to filesystem (for local development or legacy data)

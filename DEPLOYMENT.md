@@ -116,18 +116,31 @@ See `COORDINATES_GUIDE.md` for detailed instructions.
    npm i -g vercel
    ```
 
-2. **Configure Environment Variables**
-   - Go to Vercel dashboard
-   - Add `DATABASE_URL` and `NEXT_PUBLIC_APP_URL`
+2. **Enable Vercel Blob Storage** (Required for PDF storage)
+   - Go to your Vercel project dashboard
+   - Navigate to the "Storage" tab
+   - Click "Create Database" → Select "Blob"
+   - Follow the setup wizard to create a Blob store
+   - The `BLOB_READ_WRITE_TOKEN` environment variable will be automatically added to your project
 
-3. **Update Prisma Schema for Serverless**
-   - Use connection pooling for PostgreSQL
-   - Or use Prisma Data Proxy
+3. **Configure Environment Variables**
+   - Go to Vercel dashboard → Your Project → Settings → Environment Variables
+   - Add the following variables:
+     - `MONGODB_URI` - Your MongoDB connection string
+     - `NEXT_PUBLIC_APP_URL` - Your app URL (e.g., https://your-app.vercel.app)
+     - `JWT_SECRET` - JWT secret for authentication
+     - `BLOB_READ_WRITE_TOKEN` - Automatically added when you enable Blob Storage
+   - Also add admin credentials if using the seed script:
+     - `ADMIN_USERNAME`
+     - `ADMIN_EMAIL`
+     - `ADMIN_PASSWORD`
 
 4. **Deploy**
    ```bash
    vercel
    ```
+
+   **Note:** PDFs are now stored in Vercel Blob Storage instead of MongoDB to avoid the 16MB document size limit. The application automatically handles this - no code changes needed after enabling Blob Storage.
 
 ## Docker Deployment
 
@@ -199,6 +212,15 @@ After deployment, verify print functionality:
 - Check network connectivity (for MongoDB Atlas)
 - Verify database permissions and credentials
 - Check MongoDB connection string format
+
+### PDF Storage Errors (16MB Limit)
+
+If you see errors like "BSONObj size: X is invalid. Size must be between 0 and 16793600(16MB)":
+
+- **Solution:** Enable Vercel Blob Storage (see Vercel Deployment section above)
+- The application now stores PDFs in Blob Storage instead of MongoDB
+- Ensure `BLOB_READ_WRITE_TOKEN` is set in your Vercel environment variables
+- This is automatically configured when you enable Blob Storage in the Vercel dashboard
 
 ### Build Errors
 
