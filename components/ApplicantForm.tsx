@@ -162,9 +162,9 @@ export default function ApplicantForm({
               }`}
             >
               <option value="">Select Relation</option>
-              <option value="son">Son of</option>
-              <option value="daughter">Daughter of</option>
-              <option value="wife">Wife of</option>
+              <option value="Son of">Son of</option>
+              <option value="Daughter of">Daughter of</option>
+              <option value="Wife of">Wife of</option>
             </select>
             </div>
             <div>
