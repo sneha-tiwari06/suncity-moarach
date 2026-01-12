@@ -12,56 +12,37 @@ export default function PreviewPage() {
   const [error, setError] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-  // Fetch the stored PDF from Blob Storage
+  // Fetch the PDF with HTML (same as admin uses)
   useEffect(() => {
     if (applicationId) {
-      // Use the stored PDF endpoint (fetches from Blob Storage)
-      // Fallback to pdf-with-html if needed
-      const checkPdf = async () => {
-        try {
-          // Try the stored PDF first (faster, more reliable)
-          const response = await fetch(`/api/applications/${applicationId}`);
-          if (response.ok) {
-            setPdfUrl(`/api/applications/${applicationId}`);
-            setLoading(false);
-          } else {
-            // Fallback to pdf-with-html if stored PDF not available
-            setPdfUrl(`/api/applications/${applicationId}/pdf-with-html`);
-            setLoading(false);
-          }
-        } catch (err) {
-          console.error('Error checking PDF:', err);
-          // Fallback to pdf-with-html
-          setPdfUrl(`/api/applications/${applicationId}/pdf-with-html`);
+      // Use the same endpoint as admin dashboard
+      const pdfUrl = `/api/applications/${applicationId}/pdf-with-html`;
+      setPdfUrl(pdfUrl);
           setLoading(false);
-        }
-      };
-      checkPdf();
     }
   }, [applicationId]);
 
-  const handleDownload = async () => {
-    try {
-      // Try stored PDF first, fallback to pdf-with-html
-      let response = await fetch(`/api/applications/${applicationId}`);
-      if (!response.ok) {
-        response = await fetch(`/api/applications/${applicationId}/pdf-with-html`);
-      }
-      if (!response.ok) throw new Error('Failed to download PDF');
-      
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `application-${applicationId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Error downloading PDF:', err);
-      alert('Failed to download PDF. Please try again.');
-    }
+  const handleDownload = () => {
+    // Download the PDF with HTML
+    fetch(`/api/applications/${applicationId}/pdf-with-html`)
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to download PDF');
+        return response.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `application-${applicationId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      })
+      .catch((err) => {
+        console.error('Error downloading PDF:', err);
+        alert('Failed to download PDF. Please try again.');
+      });
   };
 
   if (loading) {
@@ -117,7 +98,7 @@ export default function PreviewPage() {
           </div>
         </div>
 
-        {/* PDF Viewer */}
+        {/* PDF Viewer - Same as admin preview */}
         {pdfUrl && (
           <div className="w-full" style={{ minHeight: '800px' }}>
             <iframe
@@ -125,11 +106,8 @@ export default function PreviewPage() {
               className="w-full border-0"
               style={{ minHeight: '800px', height: '100vh' }}
               title="Application Preview"
-              onError={() => {
-                setError('Failed to load PDF. Please try refreshing the page.');
-              }}
-            />
-          </div>
+                      />
+                    </div>
         )}
       </div>
     </div>

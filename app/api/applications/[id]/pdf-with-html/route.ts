@@ -4,9 +4,11 @@ import Application from '@/models/Application';
 import path from 'path';
 import fs from 'fs';
 import { PDFDocument, PDFImage } from 'pdf-lib';
-import puppeteer from 'puppeteer';
 import { renderApplicantFormHTML, renderApartmentFormHTML } from '@/lib/html-renderer';
 import { page21ImageCoordinates } from '@/lib/pdf-coordinates';
+
+// Dynamic imports for Puppeteer - use serverless version on Vercel, regular on local
+const isProduction = process.env.VERCEL === '1';
 
 export async function GET(
   request: NextRequest,
@@ -105,15 +107,33 @@ export async function GET(
     }
 
     // Launch Puppeteer browser
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-      ],
-    });
+    // Use serverless Chrome on Vercel, regular Puppeteer locally
+    let puppeteerInstance: any;
+    let chromiumInstance: any;
+    
+    if (isProduction) {
+      // Production: Use puppeteer-core with @sparticuz/chromium
+      puppeteerInstance = (await import('puppeteer-core')).default;
+      chromiumInstance = await import('@sparticuz/chromium');
+      browser = await puppeteerInstance.launch({
+        args: chromiumInstance.default.args,
+        defaultViewport: chromiumInstance.default.defaultViewport,
+        executablePath: await chromiumInstance.default.executablePath(),
+        headless: chromiumInstance.default.headless,
+      });
+    } else {
+      // Local development: Use regular Puppeteer (has Chromium bundled)
+      puppeteerInstance = (await import('puppeteer')).default;
+      browser = await puppeteerInstance.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+        ],
+      });
+    }
 
     const htmlPages: Uint8Array[] = [];
 
