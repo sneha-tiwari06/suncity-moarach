@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Pixel-Perfect A4 PDF Print Styles */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  /* Remove all non-PDF content when printing */
+  body * {
+    visibility: hidden;
+  }
+  
+  /* Show only PDF content */
+  .print-pdf-container,
+  .print-pdf-container * {
+    visibility: visible;
+  }
+  
+  .print-pdf-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Ensure no scaling, no headers/footers */
+  @page {
+    size: 210mm 297mm; /* A4 exact dimensions */
+    margin: 0;
+  }
+  
+  /* Hide all buttons and navigation */
+  button,
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Force exact dimensions for PDF pages */
+  canvas {
+    width: 210mm !important; /* A4 width in points (8.5" * 72) */
+    height: 280mm !important; /* A4 height in points (11" * 72) */
+    max-width: 210mm !important;
+    max-height: 280mm !important;
+    page-break-after: always;
+  }
+
+  /* Form pages - A4 size with proper page breaks */
+  .form-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+  
+  /* Ensure zero pixel shift */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
