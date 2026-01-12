@@ -45,7 +45,7 @@ export async function GET(
       );
     }
 
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(pdfBytes as unknown as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

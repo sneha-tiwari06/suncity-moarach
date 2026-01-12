@@ -3,6 +3,7 @@ import { formCoordinates, signatureCoordinates, page21ImageCoordinates } from '.
 import { FormData } from './types';
 import { pdfFieldConfigs, PDFFieldConfig } from './pdf-field-config';
 import { fillFieldWithOverflow, formatFieldValue } from './pdf-overflow-handler';
+import { calculateBoxConfig, fillCharacterBoxes } from './character-box-filler';
 
 export async function generateFilledPDF(
   originalPdfBytes: Uint8Array,

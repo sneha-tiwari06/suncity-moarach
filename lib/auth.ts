@@ -1,16 +1,10 @@
-import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 import User, { IUser } from '@/models/User';
 import connectDB from '@/lib/mongodb';
+import { generateToken as generateJWTToken, verifyToken, JWTPayload } from '@/lib/jwt';
 
-const JWT_SECRET: string = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
-const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '7d';
-
-export interface JWTPayload {
-  userId: string;
-  username: string;
-  role: string;
-}
+// Re-export JWTPayload for backward compatibility
+export type { JWTPayload };
 
 /**
  * Generate JWT token for a user
@@ -22,25 +16,11 @@ export function generateToken(user: IUser): string {
     role: user.role,
   };
 
-  const secret = JWT_SECRET || 'default-secret-change-in-production';
-  const expiresIn = JWT_EXPIRES_IN || '7d';
-
-  return jwt.sign(payload, secret, {
-    expiresIn: expiresIn,
-  } as jwt.SignOptions);
+  return generateJWTToken(payload);
 }
 
-/**
- * Verify JWT token
- */
-export function verifyToken(token: string): JWTPayload | null {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET as string) as JWTPayload;
-    return decoded;
-  } catch (error) {
-    return null;
-  }
-}
+// Re-export verifyToken for backward compatibility (though middleware should use lib/jwt directly)
+export { verifyToken };
 
 /**
  * Get token from request cookie or Authorization header
