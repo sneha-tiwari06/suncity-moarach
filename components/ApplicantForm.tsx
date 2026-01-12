@@ -74,14 +74,67 @@ export default function ApplicantForm({
 
   const handlePhotographUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+    if (!file) return;
+
+    // Check file size (150KB = 150 * 1024 bytes)
+    const maxSize = 150 * 1024; // 150KB in bytes
+    if (file.size > maxSize) {
+      setErrors(prev => ({ ...prev, photograph: 'Photo size must be 150KB or less' }));
+      event.target.value = ''; // Reset input
+      return;
+    }
+
+    // Check if it's an image
+    if (!file.type.startsWith('image/')) {
+      setErrors(prev => ({ ...prev, photograph: 'Please upload a valid image file' }));
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const img = new Image();
+      img.onload = () => {
+        // Validate passport size: square aspect ratio (1:1) with reasonable dimensions
+        const width = img.width;
+        const height = img.height;
+        const aspectRatio = width / height;
+        
+        // Check if it's approximately square (aspect ratio between 0.9 and 1.1)
+        // and dimensions are reasonable for passport photos (300x300 to 1000x1000)
+        const isSquare = aspectRatio >= 0.9 && aspectRatio <= 1.1;
+        const isValidSize = width >= 300 && width <= 1000 && height >= 300 && height <= 1000;
+        
+        if (!isSquare || !isValidSize) {
+          setErrors(prev => ({ 
+            ...prev, 
+            photograph: 'Photo must be passport size (square, 300x300 to 1000x1000 pixels)' 
+          }));
+          event.target.value = '';
+          return;
+        }
+
+        // Clear any previous errors
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.photograph;
+          return newErrors;
+        });
+
         const base64String = reader.result as string;
         handleFieldChange('photograph', base64String);
       };
-      reader.readAsDataURL(file);
-    }
+      img.onerror = () => {
+        setErrors(prev => ({ ...prev, photograph: 'Failed to load image' }));
+        event.target.value = '';
+      };
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => {
+      setErrors(prev => ({ ...prev, photograph: 'Failed to read file' }));
+      event.target.value = '';
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -417,7 +470,7 @@ export default function ApplicantForm({
             <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
               Affix Photograph <span className="text-red-500">*</span>
             </label>
-            <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-50 min-h-[250px] flex flex-col items-center justify-center relative">
+            <div className={`border-2 border-dashed rounded-lg p-4 bg-gray-50 min-h-[250px] flex flex-col items-center justify-center relative ${errors.photograph ? 'border-red-400' : 'border-gray-400'}`}>
               {data.photograph ? (
                 <div className="w-full h-full flex flex-col items-center">
                   <img
@@ -427,7 +480,14 @@ export default function ApplicantForm({
                   />
                   <button
                     type="button"
-                    onClick={() => handleFieldChange('photograph', '')}
+                    onClick={() => {
+                      handleFieldChange('photograph', '');
+                      setErrors(prev => {
+                        const newErrors = { ...prev };
+                        delete newErrors.photograph;
+                        return newErrors;
+                      });
+                    }}
                     className="w-full px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
                   >
                     Remove Photo
@@ -451,7 +511,8 @@ export default function ApplicantForm({
                   >
                     Upload Photo
                   </label>
-                  <p className="mt-2 text-xs text-gray-500 text-center">JPG, PNG (Max 5MB)</p>
+                  <p className="mt-2 text-xs text-gray-500 text-center">JPG, PNG (Max 150KB, Passport Size)</p>
+                  {errors.photograph && <p className="mt-2 text-xs text-red-500 text-center">{errors.photograph}</p>}
                 </div>
               )}
             </div>
