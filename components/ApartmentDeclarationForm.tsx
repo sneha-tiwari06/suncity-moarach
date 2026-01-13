@@ -270,7 +270,8 @@ export default function ApartmentDeclarationForm({
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   errors.floor ? 'border-red-500' : 'border-gray-300'
                 }`}
-                max={3}
+                min={1}
+                max={70}
                 placeholder="Enter floor number"
               />
               {/* <select
@@ -353,11 +354,11 @@ export default function ApartmentDeclarationForm({
                   Auto-filled based on BHK type ({formData.bhkType === '3bhk' ? '3 BHK' : '4 BHK'})
                 </p>
               )}
-              {!formData.bhkType && (
+              {/* {!formData.bhkType && (
                 <p className="mt-1 text-xs text-gray-500">
                   Select BHK type to auto-fill unit price
                 </p>
-              )}
+              )} */}
             </div>
 
             {/* GST Note */}
