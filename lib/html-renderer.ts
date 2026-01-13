@@ -27,7 +27,7 @@ const APARTMENT_GAP = 16;
 /**
  * Render character boxes HTML - matches preview page exactly
  */
-function renderCharacterBoxesHTML(value: string, boxCount: number = 20, boxWidth: number = APPLICANT_BOX_WIDTH): string {
+function renderCharacterBoxesHTML(value: string, boxCount: number = 28, boxWidth: number = APPLICANT_BOX_WIDTH): string {
   const boxHeight = APPLICANT_BOX_HEIGHT; // 20px
   const borderWidth = APPLICANT_BORDER_WIDTH; // 1px
   const chars = value ? value.toString().split('').slice(0, boxCount) : [];
