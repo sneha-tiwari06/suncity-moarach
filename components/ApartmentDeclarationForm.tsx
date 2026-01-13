@@ -264,14 +264,13 @@ export default function ApartmentDeclarationForm({
                 Floor
               </label>
               <input
-                type="number"
+                type="text"
                 value={formData.floor || ''}
                 onChange={(e) => handleFieldChange('floor', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   errors.floor ? 'border-red-500' : 'border-gray-300'
                 }`}
-                min={1}
-                max={70}
+                maxLength={3}
                 placeholder="Enter floor number"
               />
               {/* <select
@@ -313,9 +312,9 @@ export default function ApartmentDeclarationForm({
                     handleFieldChange('carpetAreaSqm', sqm.toString());
                     handleFieldChange('carpetAreaSqft', sqft.toFixed(2));
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
                   placeholder="0.00"
-                  readOnly={!!formData.bhkType}
                 />
                 {formData.bhkType && (
                   <p className="mt-1 text-xs text-gray-500">Auto-filled based on BHK type</p>
