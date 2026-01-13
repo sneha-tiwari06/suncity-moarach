@@ -44,11 +44,11 @@ export default function AdminDashboard() {
       if (response.ok && result.success) {
         setUser(result.user);
       } else {
-        router.push('/login?redirect=/admin');
+        router.push('/login?redirect=/admin-dashboard');
       }
     } catch (error) {
       console.error('Auth check error:', error);
-      router.push('/login?redirect=/admin');
+      router.push('/login?redirect=/admin-dashboard');
     } finally {
       setAuthLoading(false);
     }
