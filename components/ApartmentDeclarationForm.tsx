@@ -139,18 +139,18 @@ export default function ApartmentDeclarationForm({
   };
 
   const validateField = (field: string, value: any): string => {
-    if (field === 'tower' && !value) {
-      return 'Tower is required';
-    }
-    if (field === 'apartmentNumber' && !value) {
-      return 'Apartment Number is required';
-    }
-    if (field === 'bhkType' && !value) {
-      return 'Type (BHK) is required';
-    }
-    if (field === 'floor' && !value) {
-      return 'Floor is required';
-    }
+    // if (field === 'tower' && !value) {
+    //   return 'Tower is required';
+    // }
+    // if (field === 'apartmentNumber' && !value) {
+    //   return 'Apartment Number is required';
+    // }
+    // if (field === 'bhkType' && !value) {
+    //   return 'Type (BHK) is required';
+    // }
+    // if (field === 'floor' && !value) {
+    //   return 'Floor is required';
+    // }
     // Unit price is preset based on BHK type, no validation needed
     // if (field === 'unitPrice' && (!value || parseFloat(value) <= 0)) {
     //   return 'Valid Unit Price is required';
@@ -203,7 +203,7 @@ export default function ApartmentDeclarationForm({
             {/* Tower */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tower <span className="text-red-500">*</span>
+                Tower
               </label>
               <select
                 value={formData.tower || ''}
@@ -225,7 +225,7 @@ export default function ApartmentDeclarationForm({
             {/* Apartment Number */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Apartment No. <span className="text-red-500">*</span>
+                Apartment No.
               </label>
               <input
                 type="text"
@@ -242,7 +242,7 @@ export default function ApartmentDeclarationForm({
             {/* Type (BHK) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Type <span className="text-red-500">*</span>
+                Type
               </label>
               <select
                 value={formData.bhkType || ''}
@@ -261,7 +261,7 @@ export default function ApartmentDeclarationForm({
             {/* Floor */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Floor <span className="text-red-500">*</span>
+                Floor
               </label>
               <input
                 type="number"
@@ -301,7 +301,7 @@ export default function ApartmentDeclarationForm({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Carpet Area (sq.mtr.) <span className="text-red-500">*</span>
+                  Carpet Area (sq.mtr.)
                 </label>
                 <input
                   type="number"
@@ -324,7 +324,7 @@ export default function ApartmentDeclarationForm({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Carpet Area (sq.ft.) <span className="text-red-500">*</span>
+                  Carpet Area (sq.ft.)
                 </label>
                 <input
                   type="number"
@@ -334,14 +334,14 @@ export default function ApartmentDeclarationForm({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
                   placeholder="0.00"
                 />
-                <p className="mt-1 text-xs text-gray-500">Auto-calculated</p>
+                {/* <p className="mt-1 text-xs text-gray-500">Auto-calculated</p> */}
               </div>
             </div>
 
             {/* Unit Price - Preset based on BHK type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Unit Price (in rupees) <span className="text-red-500">*</span>
+                Unit Price (in rupees)
               </label>
               <input
                 type="text"
@@ -372,7 +372,7 @@ export default function ApartmentDeclarationForm({
             {/* Total Price */}
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Total Price (in rupees) <span className="text-red-500">*</span>
+                Total Price (in rupees)
               </label>
               <input
                 type="text"
@@ -443,7 +443,7 @@ export default function ApartmentDeclarationForm({
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Date <span className="text-red-500">*</span>
+                Date
               </label>
               <input
                 type="date"
@@ -452,7 +452,7 @@ export default function ApartmentDeclarationForm({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
                 readOnly
               />
-              <p className="mt-1 text-xs text-gray-500">Auto-filled with today's date</p>
+              <p className="mt-1 text-xs text-gray-500">Today's date</p>
             </div>
 
             <div>
