@@ -46,6 +46,14 @@ export default function ApartmentDeclarationForm({
     }
   }, []);
 
+  // Auto-update BHK type when tower changes to Crown (only 4bhk allowed)
+  useEffect(() => {
+    if (formData.tower === 'Crown' && formData.bhkType === '3bhk') {
+      // If Crown is selected and 3bhk is selected, change to 4bhk
+      handleFieldChange('bhkType', '4bhk');
+    }
+  }, [formData.tower]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Auto-set carpet area and unit price when BHK type changes
   useEffect(() => {
     if (formData.bhkType && (formData.bhkType === '3bhk' || formData.bhkType === '4bhk')) {
@@ -252,8 +260,14 @@ export default function ApartmentDeclarationForm({
                 }`}
               >
                 <option value="">Select Type</option>
-                <option value="3bhk">3 BHK</option>
-                <option value="4bhk">4 BHK</option>
+                {formData.tower === 'Crown' ? (
+                  <option value="4bhk">4 BHK</option>
+                ) : (
+                  <>
+                    <option value="3bhk">3 BHK</option>
+                    <option value="4bhk">4 BHK</option>
+                  </>
+                )}
               </select>
               {errors.bhkType && <p className="mt-1 text-sm text-red-500">{errors.bhkType}</p>}
             </div>
@@ -264,7 +278,7 @@ export default function ApartmentDeclarationForm({
                 Floor
               </label>
               <input
-                type="text"
+                type="number"
                 value={formData.floor || ''}
                 onChange={(e) => handleFieldChange('floor', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${

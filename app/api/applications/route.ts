@@ -19,20 +19,45 @@ export async function GET(request: NextRequest) {
 
     const applications = await Application.find({})
       .select({
-        formData: 0, // Exclude large form data from list
-        pdfBuffer: 0, // Exclude large PDF from list
+        _id: 1,
+        formData: 1, // Include formData to extract applicant name
+        applicantCount: 1,
+        bhkType: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        // Exclude pdfBuffer, pdfPath, pdfUrl (large fields not needed for list)
       })
       .sort({ createdAt: -1 }) // Descending order
       .lean(); // Return plain JavaScript objects
 
-    // Map _id to id for frontend consistency
-    const mappedApplications = applications.map((app: any) => ({
-      id: app._id.toString(),
-      createdAt: app.createdAt,
-      updatedAt: app.updatedAt,
-      applicantCount: app.applicantCount,
-      bhkType: app.bhkType,
-    }));
+    // Map _id to id for frontend consistency and extract first applicant name
+    const mappedApplications = applications.map((app: any) => {
+      let firstApplicantName = 'N/A';
+      
+      try {
+        if (app.formData) {
+          const formData = typeof app.formData === 'string' 
+            ? JSON.parse(app.formData) 
+            : app.formData;
+          
+          if (formData.applicants && Array.isArray(formData.applicants) && formData.applicants.length > 0) {
+            const firstApplicant = formData.applicants[0];
+            firstApplicantName = firstApplicant.name || 'N/A';
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing formData for application:', app._id, error);
+      }
+
+      return {
+        id: app._id.toString(),
+        createdAt: app.createdAt,
+        updatedAt: app.updatedAt,
+        applicantCount: app.applicantCount,
+        bhkType: app.bhkType,
+        firstApplicantName: firstApplicantName,
+      };
+    });
 
     return NextResponse.json(mappedApplications);
   } catch (error) {
