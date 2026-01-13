@@ -60,7 +60,7 @@ export interface FormData {
   // Apartment Details
   tower?: string;
   apartmentNumber?: string;
-  floor?: string;
+  floor?: number;
   carpetAreaSqm?: string;
   carpetAreaSqft?: string;
   unitPrice?: string;

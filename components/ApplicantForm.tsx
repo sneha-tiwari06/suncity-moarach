@@ -24,18 +24,18 @@ export default function ApplicantForm({
   // Calculate age from date of birth
   const calculateAge = (dob: string): string => {
     if (!dob) return '';
-    
+
     const birthDate = new Date(dob);
     const today = new Date();
-    
+
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     // Adjust age if birthday hasn't occurred this year
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    
+
     return age > 0 ? age.toString() : '';
   };
 
@@ -63,11 +63,11 @@ export default function ApplicantForm({
           dob: value,
           age: calculatedAge,
         };
-        
+
         // Validate both fields
         const dobError = validateField('dob', value);
         const ageError = validateField('age', calculatedAge);
-        
+
         setErrors(prev => {
           const newErrors = { ...prev };
           if (dobError) {
@@ -82,7 +82,7 @@ export default function ApplicantForm({
           }
           return newErrors;
         });
-        
+
         onChange(updatedData);
         return;
       }
@@ -106,7 +106,9 @@ export default function ApplicantForm({
       [field]: formattedValue,
     });
   };
-
+  const validatePhone = (phone: any) => {
+    return /^[6-9]\d{9}$/.test(phone);
+  };
   const validateField = (field: keyof ApplicantData, value: any): string => {
     if (field === 'aadhaar' && value && !validateAadhaar(value)) {
       return 'Invalid Aadhaar number (must be 12 digits)';
@@ -114,7 +116,24 @@ export default function ApplicantForm({
     if (field === 'pan' && value && !validatePAN(value)) {
       return 'Invalid PAN number (format: ABCDE1234F)';
     }
-    if ((field === 'phone' || field === 'telNo' || field === 'companyTelNo' || field === 'companyMobileNo') && value && !validatePhone(value)) {
+    if (field === 'phone' && value) {
+      if (!/^[6-9]/.test(value)) {
+        return 'Phone number must start with 6, 7, 8, or 9.';
+      }
+      if (!/^\d+$/.test(value)) {
+        return 'Phone number must contain only digits.';
+      }
+
+      if (value.length !== 10) {
+        return 'Phone number must be exactly 10 digits.';
+      }
+    }
+    if (field === 'telNo' && value) {
+      if (value.length < 6 || value.length > 12) {
+        return 'Phone number must be between 6 and 12 digits.';
+      }
+    }
+    if ((field === 'telNo' || field === 'companyTelNo' || field === 'companyMobileNo') && value && !validatePhone(value)) {
       return 'Invalid phone number (must be 10 digits)';
     }
     if ((field === 'email' || field === 'companyEmail') && value && !validateEmail(value)) {
@@ -150,16 +169,16 @@ export default function ApplicantForm({
         const width = img.width;
         const height = img.height;
         const aspectRatio = width / height;
-        
+
         // Check if it's approximately square (aspect ratio between 0.9 and 1.1)
         // and dimensions are reasonable for passport photos (300x300 to 1000x1000)
         const isSquare = aspectRatio >= 0.9 && aspectRatio <= 1.1;
         const isValidSize = width >= 300 && width <= 1000 && height >= 300 && height <= 1000;
-        
+
         if (!isSquare || !isValidSize) {
-          setErrors(prev => ({ 
-            ...prev, 
-            photograph: 'Photo must be passport size (square, 300x300 to 1000x1000 pixels)' 
+          setErrors(prev => ({
+            ...prev,
+            photograph: 'Photo must be passport size (square, 300x300 to 1000x1000 pixels)'
           }));
           event.target.value = '';
           return;
@@ -191,6 +210,25 @@ export default function ApplicantForm({
   const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file size (200KB = 200 * 1024 bytes)
+      const maxSize = 200 * 1024; // 200KB in bytes
+      if (file.size > maxSize) {
+        setErrors(prev => ({
+          ...prev,
+          signature: `File size exceeds 200KB. Please upload a smaller file. (Current: ${(file.size / 1024).toFixed(2)}KB)`
+        }));
+        // Reset the input
+        event.target.value = '';
+        return;
+      }
+
+      // Clear any previous signature errors
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.signature;
+        return newErrors;
+      });
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
@@ -373,8 +411,8 @@ export default function ApplicantForm({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Residential Status <span className="text-red-500">*</span>
             </label>
-            <div className="space-y-2">
-              <label className="flex items-center">
+            <div className="flex items-center gap-4">
+              <label className="flex items-center whitespace-nowrap">
                 <input
                   type="radio"
                   name={`residentialStatus_${applicantNumber}`}
@@ -385,7 +423,8 @@ export default function ApplicantForm({
                 />
                 <span className="text-sm">Resident</span>
               </label>
-              <label className="flex items-center">
+
+              <label className="flex items-center whitespace-nowrap">
                 <input
                   type="radio"
                   name={`residentialStatus_${applicantNumber}`}
@@ -396,7 +435,8 @@ export default function ApplicantForm({
                 />
                 <span className="text-sm">Non-Resident</span>
               </label>
-              <label className="flex items-center">
+
+              <label className="flex items-center whitespace-nowrap">
                 <input
                   type="radio"
                   name={`residentialStatus_${applicantNumber}`}
@@ -408,6 +448,7 @@ export default function ApplicantForm({
                 <span className="text-sm">Foreign National of Indian Origin</span>
               </label>
             </div>
+
           </div>
 
           {/* PAN */}
@@ -771,8 +812,11 @@ export default function ApplicantForm({
           </div>
           {!data.signature && (
             <p className="mt-1 text-sm text-gray-500">
-              Upload signature image (JPG, PNG) - This signature will be applied to all signature fields for Applicant {applicantNumber} across all pages
+              Upload signature image (JPG, PNG, Max 200KB) - This signature will be applied to all signature fields for Applicant {applicantNumber} across all pages
             </p>
+          )}
+          {errors.signature && (
+            <p className="mt-1 text-sm text-red-500">{errors.signature}</p>
           )}
           {data.signature && (
             <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
