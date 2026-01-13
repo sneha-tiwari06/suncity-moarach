@@ -372,7 +372,7 @@ async function fillPage8Fields(
     } else if (fieldName === 'tower') {
       value = formData.tower || '';
     } else if (fieldName === 'floor') {
-      value = formData.floor || '';
+      value = formData.floor !== undefined && formData.floor !== null ? String(formData.floor) : '';
     } else if (fieldName === 'carpetAreaSqm') {
       value = formData.carpetAreaSqm || '';
     } else if (fieldName === 'carpetAreaSqft') {
