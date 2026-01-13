@@ -12,13 +12,13 @@ interface ApartmentDeclarationFormProps {
 // Preset carpet areas and unit prices based on BHK type
 const CARPET_AREAS = {
   '3bhk': {
-    sqm: 121.41,
-    sqft: 1306.77, // Calculated: 121.41 * 10.764
+    sqm: 123.8398,
+    sqft: 1333, // Calculated: 123.8398 * 10.764
     unitPrice: 50000, // Preset unit price per sqm for 3 BHK (in rupees)
   },
   '4bhk': {
-    sqm: 167.23,
-    sqft: 1800.04, // Calculated: 167.23 * 10.764
+    sqm: 162.0229,
+    sqft: 1744, // Calculated: 162.0229 * 10.764
     unitPrice: 60000, // Preset unit price per sqm for 4 BHK (in rupees)
   },
 } as const;
@@ -263,7 +263,17 @@ export default function ApartmentDeclarationForm({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Floor <span className="text-red-500">*</span>
               </label>
-              <select
+              <input
+                type="number"
+                value={formData.floor || ''}
+                onChange={(e) => handleFieldChange('floor', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.floor ? 'border-red-500' : 'border-gray-300'
+                }`}
+                max={3}
+                placeholder="Enter floor number"
+              />
+              {/* <select
                 value={formData.floor || ''}
                 onChange={(e) => handleFieldChange('floor', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
@@ -282,7 +292,7 @@ export default function ApartmentDeclarationForm({
                 <option value="8th Floor">8th Floor</option>
                 <option value="9th Floor">9th Floor</option>
                 <option value="10th Floor">10th Floor</option>
-              </select>
+              </select> */}
               {errors.floor && <p className="mt-1 text-sm text-red-500">{errors.floor}</p>}
             </div>
 
@@ -290,7 +300,7 @@ export default function ApartmentDeclarationForm({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Carpet Area (sq. meter) <span className="text-red-500">*</span>
+                  Carpet Area (sq.mtr.) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -313,7 +323,7 @@ export default function ApartmentDeclarationForm({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Carpet Area (sq. feet) <span className="text-red-500">*</span>
+                  Carpet Area (sq.ft.) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -334,7 +344,7 @@ export default function ApartmentDeclarationForm({
               </label>
               <input
                 type="text"
-                value={formData.unitPrice ? `₹ ${parseFloat(formData.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₹ 0.00'}
+                // value={formData.unitPrice ? `₹ ${parseFloat(formData.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₹ 0.00'}
                 readOnly
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold"
               />
@@ -365,16 +375,16 @@ export default function ApartmentDeclarationForm({
               </label>
               <input
                 type="text"
-                value={formData.totalPrice ? `₹ ${parseFloat(formData.totalPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                // value={formData.totalPrice ? `₹ ${parseFloat(formData.totalPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
                 readOnly
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold text-lg"
               />
-              {formData.basePrice && (
+              {/* {formData.basePrice && (
                 <div className="mt-2 text-sm text-gray-600">
                   <p>Base Price: ₹ {parseFloat(formData.basePrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   <p>GST (5%): ₹ {parseFloat(formData.gstAmount || '0').toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -386,7 +396,7 @@ export default function ApartmentDeclarationForm({
               </label>
               <input
                 type="text"
-                value={calculateRatePerSqm() ? `₹ ${parseFloat(calculateRatePerSqm()).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₹ 0.00'}
+                // value={calculateRatePerSqm() ? `₹ ${parseFloat(calculateRatePerSqm()).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₹ 0.00'}
                 readOnly
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold"
               />

@@ -128,9 +128,9 @@ export default function ApplicantForm({
     if (!file) return;
 
     // Check file size (150KB = 150 * 1024 bytes)
-    const maxSize = 150 * 1024; // 150KB in bytes
+    const maxSize = 300 * 1024; // 150KB in bytes
     if (file.size > maxSize) {
-      setErrors(prev => ({ ...prev, photograph: 'Photo size must be 150KB or less' }));
+      setErrors(prev => ({ ...prev, photograph: 'Photo size must be 300KB or less' }));
       event.target.value = ''; // Reset input
       return;
     }
@@ -301,20 +301,6 @@ export default function ApplicantForm({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Age <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={data.age || ''}
-                onChange={(e) => handleFieldChange('age', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.age ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter age in years"
-                maxLength={3}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Date of Birth (DOB) <span className="text-red-500">*</span>
               </label>
 
@@ -329,6 +315,21 @@ export default function ApplicantForm({
                 onChange={(e) => handleFieldChange('dob', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.dob ? 'border-red-500' : 'border-gray-300'
                   }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Age <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={data.age || ''}
+                onChange={(e) => handleFieldChange('age', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.age ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter age in years"
+                readOnly
+                maxLength={3}
               />
             </div>
 
@@ -737,7 +738,7 @@ export default function ApplicantForm({
                   >
                     Upload Photo
                   </label>
-                  <p className="mt-2 text-xs text-gray-500 text-center">JPG, PNG (Max 150KB, Passport Size)</p>
+                  <p className="mt-2 text-xs text-gray-500 text-center">JPG, PNG (Max 300KB, Passport Size)</p>
                   {errors.photograph && <p className="mt-2 text-xs text-red-500 text-center">{errors.photograph}</p>}
                 </div>
               )}

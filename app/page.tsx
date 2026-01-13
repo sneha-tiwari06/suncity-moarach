@@ -92,8 +92,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-4 md:p-6">
+        <img src="./images/logo-monarch-color.svg" className='w-[250px] mx-auto mb-4' alt="" />
         <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-gray-800 px-2">
-          Suncity Monarch Application Form
+          Application Form
         </h1>
         
         <div className="w-full overflow-x-auto">
