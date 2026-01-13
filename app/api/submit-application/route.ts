@@ -12,9 +12,9 @@ export async function POST(request: NextRequest) {
     const { formData, applicantCount, bhkType } = body;
 
     // Validate required data
-    if (!formData || !applicantCount || !bhkType) {
+    if (!formData || !applicantCount) {
       return NextResponse.json(
-        { error: 'Missing required fields: formData, applicantCount, or bhkType' },
+        { error: 'Missing required fields: formData or applicantCount' },
         { status: 400 }
       );
     }
@@ -34,7 +34,12 @@ export async function POST(request: NextRequest) {
     const originalPdfBytes = fs.readFileSync(pdfPath);
 
     // Helper function to get image for BHK type
-    const getImageForBHK = async (bhkType: string): Promise<Uint8Array | null> => {
+    const getImageForBHK = async (bhkType: string | undefined): Promise<Uint8Array | null> => {
+      // If no BHK type is provided, return null (no image will be inserted)
+      if (!bhkType || bhkType.trim() === '') {
+        return null;
+      }
+      
       try {
         const imageFolder = path.join(process.cwd(), 'public', 'images', bhkType.toLowerCase());
         

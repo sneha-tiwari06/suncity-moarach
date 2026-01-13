@@ -31,7 +31,6 @@ export default function ApartmentDeclarationForm({
   onFormDataChange,
   onSubmit,
 }: ApartmentDeclarationFormProps) {
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [todayDate, setTodayDate] = useState('');
 
   useEffect(() => {
@@ -130,43 +129,8 @@ export default function ApartmentDeclarationForm({
     }
 
     updatedFormData[field] = value;
-    
-    // Validate
-    const error = validateField(field, value);
-    if (error) {
-      setErrors(prev => ({ ...prev, [field]: error }));
-    } else {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
 
     onFormDataChange(updatedFormData);
-  };
-
-  const validateField = (field: string, value: any): string => {
-    // if (field === 'tower' && !value) {
-    //   return 'Tower is required';
-    // }
-    // if (field === 'apartmentNumber' && !value) {
-    //   return 'Apartment Number is required';
-    // }
-    // if (field === 'bhkType' && !value) {
-    //   return 'Type (BHK) is required';
-    // }
-    // if (field === 'floor' && !value) {
-    //   return 'Floor is required';
-    // }
-    // Unit price is preset based on BHK type, no validation needed
-    // if (field === 'unitPrice' && (!value || parseFloat(value) <= 0)) {
-    //   return 'Valid Unit Price is required';
-    // }
-    if (field === 'declarationPlace' && !value) {
-      return 'Place is required';
-    }
-    return '';
   };
 
   const calculateRatePerSqm = (): string => {
@@ -176,24 +140,7 @@ export default function ApartmentDeclarationForm({
   };
 
   const handleSubmit = () => {
-    // Validate all required fields
-    const requiredFields = ['tower', 'apartmentNumber', 'bhkType', 'floor', 'declarationPlace'];
-    // Note: unitPrice is preset based on bhkType, so no need to validate separately
-    const newErrors: { [key: string]: string } = {};
-    
-    requiredFields.forEach(field => {
-      const error = validateField(field, formData[field]);
-      if (error) {
-        newErrors[field] = error;
-      }
-    });
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    // Submit if all valid
+    // No validation - allow empty forms
     onSubmit();
   };
 
@@ -216,9 +163,7 @@ export default function ApartmentDeclarationForm({
               <select
                 value={formData.tower || ''}
                 onChange={(e) => handleFieldChange('tower', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.tower ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select Tower</option>
                 <option value="Altair">Altair</option>
@@ -227,7 +172,6 @@ export default function ApartmentDeclarationForm({
                 <option value="Majestic">Majestic</option>
                 <option value="Regalia">Regalia</option>
               </select>
-              {errors.tower && <p className="mt-1 text-sm text-red-500">{errors.tower}</p>}
             </div>
 
             {/* Apartment Number */}
@@ -239,12 +183,9 @@ export default function ApartmentDeclarationForm({
                 type="text"
                 value={formData.apartmentNumber || ''}
                 onChange={(e) => handleFieldChange('apartmentNumber', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.apartmentNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter apartment number"
               />
-              {errors.apartmentNumber && <p className="mt-1 text-sm text-red-500">{errors.apartmentNumber}</p>}
             </div>
 
             {/* Type (BHK) */}
@@ -255,9 +196,7 @@ export default function ApartmentDeclarationForm({
               <select
                 value={formData.bhkType || ''}
                 onChange={(e) => handleFieldChange('bhkType', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.bhkType ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select Type</option>
                 {formData.tower === 'Crown' ? (
@@ -269,7 +208,6 @@ export default function ApartmentDeclarationForm({
                   </>
                 )}
               </select>
-              {errors.bhkType && <p className="mt-1 text-sm text-red-500">{errors.bhkType}</p>}
             </div>
 
             {/* Floor */}
@@ -281,33 +219,10 @@ export default function ApartmentDeclarationForm({
                 type="number"
                 value={formData.floor || ''}
                 onChange={(e) => handleFieldChange('floor', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.floor ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 maxLength={3}
                 placeholder="Enter floor number"
               />
-              {/* <select
-                value={formData.floor || ''}
-                onChange={(e) => handleFieldChange('floor', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.floor ? 'border-red-500' : 'border-gray-300'
-                }`}
-              >
-                <option value="">Select Floor</option>
-                <option value="Ground Floor">Ground Floor</option>
-                <option value="1st Floor">1st Floor</option>
-                <option value="2nd Floor">2nd Floor</option>
-                <option value="3rd Floor">3rd Floor</option>
-                <option value="4th Floor">4th Floor</option>
-                <option value="5th Floor">5th Floor</option>
-                <option value="6th Floor">6th Floor</option>
-                <option value="7th Floor">7th Floor</option>
-                <option value="8th Floor">8th Floor</option>
-                <option value="9th Floor">9th Floor</option>
-                <option value="10th Floor">10th Floor</option>
-              </select> */}
-              {errors.floor && <p className="mt-1 text-sm text-red-500">{errors.floor}</p>}
             </div>
 
             {/* Carpet Area */}
@@ -470,18 +385,15 @@ export default function ApartmentDeclarationForm({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Place <span className="text-red-500">*</span>
+                Place
               </label>
               <input
                 type="text"
                 value={formData.declarationPlace || ''}
                 onChange={(e) => handleFieldChange('declarationPlace', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.declarationPlace ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter place"
               />
-              {errors.declarationPlace && <p className="mt-1 text-sm text-red-500">{errors.declarationPlace}</p>}
             </div>
           </div>
         </div>

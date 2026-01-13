@@ -39,6 +39,15 @@ export default function ApplicantForm({
     return age > 0 ? age.toString() : '';
   };
 
+  // Helper function to capitalize first letter of each word
+  const capitalizeFirstLetter = (str: string): string => {
+    if (!str) return str;
+    return str
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const handleFieldChange = (field: keyof ApplicantData, value: any) => {
     let formattedValue: any = value;
 
@@ -86,13 +95,42 @@ export default function ApplicantForm({
         onChange(updatedData);
         return;
       }
+    } else if (
+      // Fields that should have first letter capitalized
+      field === 'name' ||
+      field === 'sonWifeDaughterOf' ||
+      field === 'nationality' ||
+      field === 'profession' ||
+      field === 'city' ||
+      field === 'state' ||
+      field === 'itWard' ||
+      field === 'correspondenceAddress' ||
+      field === 'address' ||
+      field === 'companyName' ||
+      field === 'regOfficeLine1' ||
+      field === 'regOfficeLine2' ||
+      field === 'authorizedSignatoryLine1' ||
+      field === 'authorizedSignatoryLine2' ||
+      field === 'boardResolutionDate'
+    ) {
+      // Capitalize first letter of each word for text fields
+      formattedValue = capitalizeFirstLetter(value);
     }
 
-    // Validate
-    const error = validateField(field, formattedValue);
-    if (error) {
-      setErrors(prev => ({ ...prev, [field]: error }));
+    // Validate (skip validation for 3rd applicant)
+    if (applicantNumber !== 3) {
+      const error = validateField(field, formattedValue);
+      if (error) {
+        setErrors(prev => ({ ...prev, [field]: error }));
+      } else {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
     } else {
+      // Clear any errors for 3rd applicant (no validation)
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
@@ -110,6 +148,11 @@ export default function ApplicantForm({
     return /^[6-9]\d{9}$/.test(phone);
   };
   const validateField = (field: keyof ApplicantData, value: any): string => {
+    // No validation for 3rd applicant
+    if (applicantNumber === 3) {
+      return '';
+    }
+    
     if (field === 'aadhaar' && value && !validateAadhaar(value)) {
       return 'Invalid Aadhaar number (must be 12 digits)';
     }
@@ -133,8 +176,21 @@ export default function ApplicantForm({
         return 'Phone number must be between 6 and 12 digits.';
       }
     }
-    if ((field === 'telNo' || field === 'companyTelNo' || field === 'companyMobileNo') && value && !validatePhone(value)) {
-      return 'Invalid phone number (must be 10 digits)';
+    if (field === 'companyMobileNo' && value) {
+      if (!/^[6-9]/.test(value)) {
+        return 'Phone number must start with 6, 7, 8, or 9.';
+      }
+      if (!/^\d+$/.test(value)) {
+        return 'Phone number must contain only digits.';
+      }
+      if (value.length !== 10) {
+        return 'Phone number must be exactly 10 digits.';
+      }
+    }
+    if (field === 'companyTelNo' && value) {
+      if (value.length < 6 || value.length > 12) {
+        return 'Phone number must be between 6 and 12 digits.';
+      }
     }
     if ((field === 'email' || field === 'companyEmail') && value && !validateEmail(value)) {
       return 'Invalid email address';
@@ -145,6 +201,17 @@ export default function ApplicantForm({
   const handlePhotographUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Skip validation for 3rd applicant
+    if (applicantNumber === 3) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        handleFieldChange('photograph', base64String);
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
 
     // Check file size (150KB = 150 * 1024 bytes)
     const maxSize = 300 * 1024; // 150KB in bytes
@@ -170,21 +237,6 @@ export default function ApplicantForm({
         const height = img.height;
         const aspectRatio = width / height;
 
-        // Check if it's approximately square (aspect ratio between 0.9 and 1.1)
-        // and dimensions are reasonable for passport photos (300x300 to 1000x1000)
-        const isSquare = aspectRatio >= 0.9 && aspectRatio <= 1.1;
-        const isValidSize = width >= 300 && width <= 1000 && height >= 300 && height <= 1000;
-
-        if (!isSquare || !isValidSize) {
-          setErrors(prev => ({
-            ...prev,
-            photograph: 'Photo must be passport size (square, 300x300 to 1000x1000 pixels)'
-          }));
-          event.target.value = '';
-          return;
-        }
-
-        // Clear any previous errors
         setErrors(prev => {
           const newErrors = { ...prev };
           delete newErrors.photograph;
@@ -210,6 +262,17 @@ export default function ApplicantForm({
   const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Skip validation for 3rd applicant
+      if (applicantNumber === 3) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result as string;
+          handleFieldChange('signature', base64String);
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+
       // Validate file size (200KB = 200 * 1024 bytes)
       const maxSize = 200 * 1024; // 200KB in bytes
       if (file.size > maxSize) {
@@ -587,20 +650,11 @@ export default function ApplicantForm({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Reg. Office/Corporate Office
                   </label>
-                  <input
-                    type="text"
+                  <textarea
                     value={data.regOfficeLine1 || ''}
                     onChange={(e) => handleFieldChange('regOfficeLine1', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
                     placeholder="Line 1"
-                    maxLength={100}
-                  />
-                  <input
-                    type="text"
-                    value={data.regOfficeLine2 || ''}
-                    onChange={(e) => handleFieldChange('regOfficeLine2', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Line 2"
                     maxLength={100}
                   />
                 </div>
@@ -610,20 +664,12 @@ export default function ApplicantForm({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Authorized Signatory
                   </label>
-                  <input
-                    type="text"
+                  <textarea
+                   
                     value={data.authorizedSignatoryLine1 || ''}
                     onChange={(e) => handleFieldChange('authorizedSignatoryLine1', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
                     placeholder="Line 1"
-                    maxLength={100}
-                  />
-                  <input
-                    type="text"
-                    value={data.authorizedSignatoryLine2 || ''}
-                    onChange={(e) => handleFieldChange('authorizedSignatoryLine2', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Line 2"
                     maxLength={100}
                   />
                 </div>

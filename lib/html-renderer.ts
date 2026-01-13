@@ -421,7 +421,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                   </div>
                   <div class="field-row">
                     <div class="label" style="width:auto; min-width:50px;">DOB:</div>
-                    ${renderCharacterBoxesHTML(applicant.dob || '', 10, APPLICANT_BOX_WIDTH)}
+                    ${renderCharacterBoxesHTML(formattedDOB, 10, APPLICANT_BOX_WIDTH)}
                   </div>
                 </div>
                 <div class="field-row">

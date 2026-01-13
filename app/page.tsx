@@ -52,12 +52,6 @@ export default function Home() {
         return;
       }
 
-      if (!formData.bhkType) {
-        alert('Please select BHK type before submitting.');
-        setIsSubmitting(false);
-        return;
-      }
-
       // Call API to submit application and generate PDF
       const response = await fetch('/api/submit-application', {
         method: 'POST',

@@ -113,8 +113,33 @@ export default function DynamicFormViewer({
     });
   };
 
+  // Check if an applicant form is complete (has required fields filled)
+  const isApplicantComplete = (applicant: ApplicantData): boolean => {
+    if (!applicant) return false;
+    
+    // Check if name is filled (basic requirement)
+    return !!(applicant.name && applicant.name.trim() !== '');
+  };
+
   const handleAddApplicant = () => {
     if (applicantCount < 3) {
+      // Check if previous applicant(s) are complete
+      if (applicantCount === 1) {
+        // Can't add second applicant until first is complete
+        const firstApplicant = formData.applicants[0];
+        if (!isApplicantComplete(firstApplicant)) {
+          alert('Please fill the first applicant form before adding a second applicant.');
+          return;
+        }
+      } else if (applicantCount === 2) {
+        // Can't add third applicant until second is complete
+        const secondApplicant = formData.applicants[1];
+        if (!isApplicantComplete(secondApplicant)) {
+          alert('Please fill the second applicant form before adding a third applicant.');
+          return;
+        }
+      }
+      
       const newApplicants = [...formData.applicants, { ...initialApplicant }];
       setApplicantCount(applicantCount + 1);
       onFormDataChange({
@@ -212,10 +237,20 @@ export default function DynamicFormViewer({
                         <div className="mt-6 pt-4 border-t border-gray-300">
                           <button
                             onClick={handleAddApplicant}
-                            className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-lg transition-colors"
+                            disabled={!isApplicantComplete(formData.applicants[0])}
+                            className={`w-full px-6 py-3 font-semibold rounded-lg shadow-lg transition-colors ${
+                              isApplicantComplete(formData.applicants[0])
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                            }`}
                           >
                             + Add Second Applicant
                           </button>
+                          {!isApplicantComplete(formData.applicants[0]) && (
+                            <p className="mt-2 text-sm text-gray-500 text-center">
+                              Please fill the first applicant form to add a second applicant
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -252,10 +287,20 @@ export default function DynamicFormViewer({
                           <div className="mt-6 pt-4 border-t border-gray-300">
                             <button
                               onClick={handleAddApplicant}
-                              className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-lg transition-colors"
+                              disabled={!isApplicantComplete(formData.applicants[1])}
+                              className={`w-full px-6 py-3 font-semibold rounded-lg shadow-lg transition-colors ${
+                                isApplicantComplete(formData.applicants[1])
+                                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                  : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                              }`}
                             >
                               + Add Third Applicant
                             </button>
+                            {!isApplicantComplete(formData.applicants[1]) && (
+                              <p className="mt-2 text-sm text-gray-500 text-center">
+                                Please fill the second applicant form to add a third applicant
+                              </p>
+                            )}
                           </div>
                         )}
                       </div>
