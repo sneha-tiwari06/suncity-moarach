@@ -584,9 +584,11 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
               </div>
             ` : ''}
           </div>
-          <div>
-          ${renderSignatureFooterHTML(formData)}
-          </div>
+          ${applicantNumber === 3 ? `<div>
+            ${renderSignatureFooterHTML(formData)}
+            </div>` : `
+            ${renderSignatureFooterHTML(formData)}
+          `}
         </div>
       </main>
     </body>
