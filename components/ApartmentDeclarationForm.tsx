@@ -192,9 +192,9 @@ export default function ApartmentDeclarationForm({
   return (
     <div className="space-y-6">
       {/* Section 4: DETAILS OF THE SAID APARTMENT AND ITS PRICING */}
-      <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">
-          4. DETAILS OF THE SAID APARTMENT AND ITS PRICING
+      <div className="border-b pb-4 border-gray-300">
+        <h3 className="text-lg font-bold text-gray-800 mb-4 uppercase">
+          DETAILS OF THE SAID APARTMENT AND ITS PRICING
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -420,9 +420,9 @@ export default function ApartmentDeclarationForm({
       </div>
 
       {/* Section 5: DECLARATION */}
-      <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">
-          5. DECLARATION
+      <div className="border-gray-300">
+        <h3 className="text-lg font-bold text-gray-800 mb-4 uppercase">
+          DECLARATION
         </h3>
 
         <div className="space-y-4">

@@ -201,7 +201,7 @@ export default function DynamicFormViewer({
                     {/* <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
                       Page 5 - Applicant 1 Form
                     </div> */}
-                    <div className="p-6 pt-12">
+                    <div className="p-6">
                       <ApplicantForm
                         applicantNumber={1}
                         data={formData.applicants[0] || { ...initialApplicant }}
@@ -240,7 +240,7 @@ export default function DynamicFormViewer({
                       {/* <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
                         Page 6 - Applicant 2 Form
                       </div> */}
-                      <div className="p-6 pt-12">
+                      <div className="p-6">
                         <ApplicantForm
                           applicantNumber={2}
                           data={formData.applicants[1] || { ...initialApplicant }}
@@ -282,7 +282,7 @@ export default function DynamicFormViewer({
                       {/* <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
                         Page 7 - Applicant 3 Form
                       </div> */}
-                      <div className="p-6 pt-12">
+                      <div className="p-6">
                         <ApplicantForm
                           applicantNumber={3}
                           data={formData.applicants[2] || { ...initialApplicant }}
@@ -313,7 +313,7 @@ export default function DynamicFormViewer({
                     {/* <div className="absolute top-2 left-2 z-10 bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
                       Page 8 - Apartment Details & Declaration
                     </div> */}
-                    <div className="p-6 pt-12">
+                    <div className="p-6">
                       <ApartmentDeclarationForm
                         formData={formData}
                         onFormDataChange={onFormDataChange}

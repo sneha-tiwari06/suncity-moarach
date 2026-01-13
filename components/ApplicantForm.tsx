@@ -202,9 +202,9 @@ export default function ApplicantForm({
   };
 
   return (
-    <div className="mb-6 bg-white rounded-lg shadow-xl border-2 border-gray-200 p-6">
+    <div className="mb-6">
       <div className="mb-4 pb-3 border-b-2 border-gray-300 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gray-800">
+        <h2 className="text-xl font-bold text-gray-800 uppercase">
           Applicant {applicantNumber} Details
         </h2>
         {canRemove && onRemove && (
