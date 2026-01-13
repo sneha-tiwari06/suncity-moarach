@@ -610,7 +610,7 @@ export default function ApplicantForm({
               onBlur={() => handleFieldBlur('correspondenceAddress')}
               rows={3}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.correspondenceAddress ? 'border-red-500' : 'border-gray-300'}`}
-              placeholder="Enter correspondence address (line 1)"
+              placeholder="Enter correspondence address"
             />
             {errors.correspondenceAddress && <p className="mt-1 text-sm text-red-500">{errors.correspondenceAddress}</p>}
           </div>
@@ -703,7 +703,7 @@ export default function ApplicantForm({
                     value={data.regOfficeLine1 || ''}
                     onChange={(e) => handleFieldChange('regOfficeLine1', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                    placeholder="Line 1"
+                    placeholder=""
                     maxLength={100}
                   />
                 </div>
@@ -718,7 +718,7 @@ export default function ApplicantForm({
                     value={data.authorizedSignatoryLine1 || ''}
                     onChange={(e) => handleFieldChange('authorizedSignatoryLine1', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                    placeholder="Line 1"
+                    placeholder=""
                     maxLength={100}
                   />
                 </div>

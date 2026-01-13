@@ -94,7 +94,7 @@ async function seedAdmin() {
     const existingAdmin = await User.findOne({
       $or: [
         { username: process.env.ADMIN_USERNAME || 'admin' },
-        { email: process.env.ADMIN_EMAIL || 'admin@suncity.com' },
+        { email: process.env.ADMIN_EMAIL || 'admin@suncity-monarch.com' },
       ],
     });
 
@@ -111,8 +111,8 @@ async function seedAdmin() {
     // Create admin user
     const adminData = {
       username: process.env.ADMIN_USERNAME || 'admin',
-      email: process.env.ADMIN_EMAIL || 'admin@suncity.com',
-      password: process.env.ADMIN_PASSWORD || 'admin123',
+      email: process.env.ADMIN_EMAIL || 'admin@suncity-monarch.com',
+      password: process.env.ADMIN_PASSWORD || 'Admin@Monarch',
       role: 'admin',
       isActive: true,
     };
