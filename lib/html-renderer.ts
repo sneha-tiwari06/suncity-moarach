@@ -284,7 +284,6 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           display: flex;
           align-items: center;
           gap: ${APPLICANT_FIELD_GAP}px;
-          margin-bottom: 6px;
           align-self: self-start;
         }
         .label {
@@ -539,12 +538,12 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                   </div>
                   
                   <div class="field-row">
-                    <div class="label" style="width: calc(${APPLICANT_LABEL_WIDTH}px * 2); min-width: calc(${APPLICANT_LABEL_WIDTH}px * 2);">Board Resolution dated/Power of Attorney:</div>
-                    ${renderCharacterBoxesHTML(applicant.boardResolutionDate || '', 23, APPLICANT_BOX_WIDTH)}
+                    <div class="label" style="width: calc(${APPLICANT_LABEL_WIDTH}px * 2 + 15px); min-width: calc(${APPLICANT_LABEL_WIDTH}px * 2 + 15px);">Board Resolution dated/Power of Attorney:</div>
+                    ${renderCharacterBoxesHTML(applicant.boardResolutionDate || '', 22, APPLICANT_BOX_WIDTH)}
                   </div>
                   
                   <div class="field-row">
-                    <div class="label">PAN No./TIN No.:</div>
+                    <div class="label" style="width">PAN No./TIN No.:</div>
                     ${renderCharacterBoxesHTML(applicant.companyPanOrTin || '', 28, APPLICANT_BOX_WIDTH)}
                   </div>
                   
@@ -585,8 +584,9 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
               </div>
             ` : ''}
           </div>
-
+          <div>
           ${renderSignatureFooterHTML(formData)}
+          </div>
         </div>
       </main>
     </body>
