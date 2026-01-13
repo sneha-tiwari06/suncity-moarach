@@ -353,11 +353,11 @@ export default function ApartmentDeclarationForm({
                   Auto-filled based on BHK type ({formData.bhkType === '3bhk' ? '3 BHK' : '4 BHK'})
                 </p>
               )}
-              {!formData.bhkType && (
+              {/* {!formData.bhkType && (
                 <p className="mt-1 text-xs text-gray-500">
                   Select BHK type to auto-fill unit price
                 </p>
-              )}
+              )} */}
             </div>
 
             {/* GST Note */}
