@@ -255,10 +255,7 @@ export default function AdminDashboard() {
                         View
                       </button>
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDownload(app.id);
-                        }}
+                        onClick={() => handleViewApplication(app.id)}
                         className="flex-1 px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
