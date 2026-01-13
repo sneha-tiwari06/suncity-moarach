@@ -104,15 +104,17 @@ function renderSignatureFooterHTML(formData: FormData): string {
 
   if (hasSecondSignature) {
     html += `
-      <div>
-        <div style="margin-bottom: 4px; text-align: center;">
-          <span style="color: #58595b; font-style: italic; font-size: 11px;">Second Applicant, if any</span>
-        </div>
-        <div style="margin-bottom: 4px;">
+      <div style="display: flex; gap: 10px;">
+        <div style="display: flex; align-items: flex-end; padding-bottom: 15px">
           <label style="font-weight: bold; color: #58595b; font-size: 11px;">Signature:</label>
         </div>
-        <div style="border: 1px dashed #ee1e23; background-color: white; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
-          <img src="${formData.applicants[1].signature}" alt="Second Applicant Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+        <div>
+          <div style="margin-bottom: 4px; text-align: center;">
+            <span style="color: #58595b; font-style: italic; font-size: 11px;">Second Applicant</span>
+          </div>
+          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
+            <img src="${formData.applicants[1].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+          </div>
         </div>
       </div>
     `;
@@ -120,15 +122,17 @@ function renderSignatureFooterHTML(formData: FormData): string {
 
   if (hasThirdSignature) {
     html += `
-      <div>
-        <div style="margin-bottom: 4px; text-align: center;">
-          <span style="color: #58595b; font-style: italic; font-size: 11px;">Third Applicant, if any</span>
-        </div>
-        <div style="margin-bottom: 4px;">
+      <div style="display: flex; gap: 10px;">
+        <div style="display: flex; align-items: flex-end; padding-bottom: 15px">
           <label style="font-weight: bold; color: #58595b; font-size: 11px;">Signature:</label>
         </div>
-        <div style="border: 1px dashed #ee1e23; background-color: white; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
-          <img src="${formData.applicants[2].signature}" alt="Third Applicant Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+        <div>
+          <div style="margin-bottom: 4px; text-align: center;">
+            <span style="color: #58595b; font-style: italic; font-size: 11px;">Third Applicant</span>
+          </div>
+          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
+            <img src="${formData.applicants[2].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+          </div>
         </div>
       </div>
     `;
