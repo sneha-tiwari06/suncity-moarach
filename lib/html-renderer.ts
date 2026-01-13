@@ -159,6 +159,63 @@ function getSVGAsDataURI(svgPath: string): string {
   return '';
 }
 /**
+ * Format date to DD-MM-YYYY format (with hyphens)
+ */
+function formatDOBToDDMMYYYY(dateStr: string): string {
+  if (!dateStr) return '';
+  
+  try {
+    // Handle YYYY-MM-DD format (from date input)
+    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const [year, month, day] = dateStr.split('-');
+      return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+    }
+    
+    // Handle other date formats
+    const dateMatch = dateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if (dateMatch) {
+      const [, part1, part2, part3] = dateMatch;
+      let day = part1;
+      let month = part2;
+      let year = part3;
+      
+      // Determine format
+      if (part1.length === 4 || parseInt(part1) > 12) {
+        // YYYY-MM-DD format
+        year = part1;
+        month = part2;
+        day = part3;
+      } else if (parseInt(part1) > 12) {
+        // DD/MM/YYYY format
+        day = part1;
+        month = part2;
+        year = part3.length === 2 ? '20' + part3 : part3;
+      } else {
+        // MM/DD/YYYY format
+        month = part1;
+        day = part2;
+        year = part3.length === 2 ? '20' + part3 : part3;
+      }
+      
+      return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+    }
+    
+    // If already in ddmmyyyy format (8 digits), parse and add hyphens
+    const digitsOnly = dateStr.replace(/[\/\-\s]/g, '');
+    if (/^\d{8}$/.test(digitsOnly)) {
+      const day = digitsOnly.substring(0, 2);
+      const month = digitsOnly.substring(2, 4);
+      const year = digitsOnly.substring(4, 8);
+      return `${day}-${month}-${year}`;
+    }
+    
+    return dateStr;
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
  * Render applicant form HTML (Page 5, 6, 7)
  */
 export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumber: number, formData: FormData): string {
@@ -170,6 +227,9 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
   // Split multi-line fields
   const itWardLines = (applicant.itWard || '').match(/.{1,20}/g) || [];
   const addressLines = (applicant.correspondenceAddress || '').match(/.{1,20}/g) || [];
+  
+  // Format DOB to DDMMYYYY
+  const formattedDOB = formatDOBToDDMMYYYY(applicant.dob || '');
 
   const html = `
     <!DOCTYPE html>
@@ -360,7 +420,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                 </div>
                 <div class="field-row">
                   <div class="label">DOB:</div>
-                  ${renderCharacterBoxesHTML(applicant.dob || '', 20, APPLICANT_BOX_WIDTH)}
+                  ${renderCharacterBoxesHTML(formattedDOB, 20, APPLICANT_BOX_WIDTH)}
                 </div>
                 <div class="field-row">
                   <div class="label">Profession:</div>
@@ -537,8 +597,8 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
  */
 export function renderApartmentFormHTML(formData: FormData): string {
   const bhkTypeDisplay = formData.bhkType === '3bhk' ? '3 BHK' : formData.bhkType === '4bhk' ? '4 BHK' : '';
-  const unitPriceClean = formData.unitPrice ? formData.unitPrice.replace(/[₹,]/g, '') : '';
-  const totalPriceClean = formData.totalPrice ? formData.totalPrice.replace(/[₹,]/g, '') : '';
+  // const unitPriceClean = formData.unitPrice ? formData.unitPrice.replace(/[₹,]/g, '') : '';
+  // const totalPriceClean = formData.totalPrice ? formData.totalPrice.replace(/[₹,]/g, '') : '';
 
   const formatDateToDDMMYYYY = (dateStr: string): string => {
     if (!dateStr) return '';
@@ -761,7 +821,7 @@ export function renderApartmentFormHTML(formData: FormData): string {
                   </div>
                   <div class="field-row">
                     <div class="label" style="width:auto; min-width: 50px;">Unit Price (in rupees)</div>
-                    <div class="value-field">${unitPriceClean}</div>
+                    <div class="value-field"></div>
                   </div>
                   <p style="font-size:12px;">
                     Applicable taxes and cesses payable by the <strong>Applicant(s)</strong> which are in addition to total unit price (this includes GST payable at rates as specified from time to time, which at present is 5%)
@@ -777,7 +837,7 @@ export function renderApartmentFormHTML(formData: FormData): string {
               <div style="display: flex; border-top: 1px solid #58595b">
                 <div class="field-row" style="margin-bottom: 0; padding: 15px 20px; width: calc(55% + 1px); border-right: 1px solid #58595b">
                   <div class="label" style="width:auto; min-width:100px">Total Price <span style="font-weight:500">(in rupees)</span></div>
-                  <div class="value-field">${totalPriceClean}</div>
+                  <div class="value-field"></div>
                 </div>
               </div>
 
