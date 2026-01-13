@@ -40,6 +40,59 @@ export default function Home() {
     setFormData(data);
   };
 
+  // Validate applicant data - strict validation for applicants 1 and 2
+  const validateApplicant = (applicant: any, applicantNumber: number): string[] => {
+    const errors: string[] = [];
+    
+    // Only validate applicants 1 and 2 strictly
+    if (applicantNumber === 1 || applicantNumber === 2) {
+      const requiredFields: { [key: string]: string } = {
+        title: 'Title',
+        name: 'Full Name',
+        relation: 'Relation',
+        sonWifeDaughterOf: 'Son/Wife/Daughter of',
+        nationality: 'Nationality',
+        dob: 'Date of Birth',
+        age: 'Age',
+        profession: 'Profession',
+        aadhaar: 'Aadhaar number',
+        residentialStatus: 'Residential Status',
+        pan: 'PAN number',
+        correspondenceAddress: 'Correspondence Address',
+        phone: 'Mobile number',
+        email: 'Email',
+        signature: 'Signature',
+      };
+
+      // Check all required fields
+      Object.keys(requiredFields).forEach(field => {
+        const value = applicant[field];
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          errors.push(`${requiredFields[field]} is required for Applicant ${applicantNumber}`);
+        }
+      });
+
+      // Validate format for filled fields
+      if (applicant.aadhaar) {
+        const aadhaarDigits = applicant.aadhaar.toString().replace(/\D/g, '');
+        if (aadhaarDigits.length !== 12) {
+          errors.push(`Invalid Aadhaar number for Applicant ${applicantNumber} (must be exactly 12 digits)`);
+        }
+      }
+      if (applicant.pan && !/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(applicant.pan)) {
+        errors.push(`Invalid PAN number for Applicant ${applicantNumber}`);
+      }
+      if (applicant.phone && (!/^[6-9]/.test(applicant.phone) || applicant.phone.length !== 10)) {
+        errors.push(`Invalid mobile number for Applicant ${applicantNumber} (must start with 6-9 and be 10 digits)`);
+      }
+      if (applicant.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(applicant.email)) {
+        errors.push(`Invalid email address for Applicant ${applicantNumber}`);
+      }
+    }
+    
+    return errors;
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
@@ -48,6 +101,28 @@ export default function Home() {
       
       if (applicantCount === 0) {
         alert('Please fill at least one applicant form before submitting.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Strict validation for applicants 1 and 2
+      const validationErrors: string[] = [];
+      
+      // Validate applicant 1
+      if (formData.applicants[0]) {
+        const errors1 = validateApplicant(formData.applicants[0], 1);
+        validationErrors.push(...errors1);
+      }
+      
+      // Validate applicant 2 if exists
+      if (formData.applicants[1] && formData.applicants[1].name && formData.applicants[1].name.trim() !== '') {
+        const errors2 = validateApplicant(formData.applicants[1], 2);
+        validationErrors.push(...errors2);
+      }
+
+      // If there are validation errors, show them and prevent submission
+      if (validationErrors.length > 0) {
+        alert(`Please fix the following errors before submitting:\n\n${validationErrors.join('\n')}`);
         setIsSubmitting(false);
         return;
       }

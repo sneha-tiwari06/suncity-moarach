@@ -135,15 +135,69 @@ export default function ApplicantForm({
       [field]: formattedValue,
     });
   };
+
+  // Validate field on blur (when user leaves the field)
+  const handleFieldBlur = (field: keyof ApplicantData) => {
+    if (applicantNumber === 1 || applicantNumber === 2) {
+      const value = data[field];
+      const error = validateField(field, value);
+      if (error) {
+        setErrors(prev => ({ ...prev, [field]: error }));
+      } else {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+    }
+  };
   const validatePhone = (phone: any) => {
     return /^[6-9]\d{9}$/.test(phone);
   };
   const validateField = (field: keyof ApplicantData, value: any): string => {
-    if (field === 'aadhaar' && value && !validateAadhaar(value)) {
-      return 'Invalid Aadhaar number (must be 12 digits)';
+    // Strict validation for applicants 1 and 2 - all fields are required
+    if (applicantNumber === 1 || applicantNumber === 2) {
+      // Required fields validation
+      const requiredFields: { [key: string]: string } = {
+        title: 'Title is required',
+        name: 'Full Name is required',
+        relation: 'Relation is required',
+        sonWifeDaughterOf: 'Son/Wife/Daughter of is required',
+        nationality: 'Nationality is required',
+        dob: 'Date of Birth is required',
+        age: 'Age is required',
+        profession: 'Profession is required',
+        residentialStatus: 'Residential Status is required',
+        pan: 'PAN number is required',
+        correspondenceAddress: 'Correspondence Address is required',
+        phone: 'Mobile number is required',
+        email: 'Email is required',
+        signature: 'Signature is required',
+      };
+
+      // Check if field is required and empty
+      if (requiredFields[field] && (!value || (typeof value === 'string' && value.trim() === ''))) {
+        return requiredFields[field];
+      }
     }
-    if (field === 'pan' && value && !validatePAN(value)) {
-      return 'Invalid PAN number (format: ABCDE1234F)';
+
+    // Format validation (only if value exists)
+    if (field === 'aadhaar' && value) {
+      // Remove all non-digits before validation to handle any formatting
+      const digitsOnly = value.toString().replace(/\D/g, '');
+      if (digitsOnly.length !== 12) {
+        return 'Invalid Aadhaar number (must be exactly 12 digits)';
+      }
+      // Additional validation using the utility function
+      if (!validateAadhaar(digitsOnly)) {
+        return 'Invalid Aadhaar number (must be exactly 12 digits)';
+      }
+    }
+    if (field === 'pan' && value) {
+      if (!validatePAN(value)) {
+        return 'Invalid PAN number (format: ABCDE1234F)';
+      }
     }
     if (field === 'phone' && value) {
       if (!/^[6-9]/.test(value)) {
@@ -152,7 +206,6 @@ export default function ApplicantForm({
       if (!/^\d+$/.test(value)) {
         return 'Phone number must contain only digits.';
       }
-
       if (value.length !== 10) {
         return 'Phone number must be exactly 10 digits.';
       }
@@ -178,8 +231,10 @@ export default function ApplicantForm({
         return 'Phone number must be between 6 and 12 digits.';
       }
     }
-    if ((field === 'email' || field === 'companyEmail') && value && !validateEmail(value)) {
-      return 'Invalid email address';
+    if ((field === 'email' || field === 'companyEmail') && value) {
+      if (!validateEmail(value)) {
+        return 'Invalid email address';
+      }
     }
     return '';
   };
@@ -288,9 +343,13 @@ export default function ApplicantForm({
         <div className="md:col-span-2 space-y-4">
           {/* Title */}
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Title <span className="text-red-500">*</span>
+            </label>
             <select
               value={data.title || ''}
               onChange={(e) => handleFieldChange('title', e.target.value)}
+              onBlur={() => handleFieldBlur('title')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.title ? 'border-red-500' : 'border-gray-300'
                 }`}
             >
@@ -300,6 +359,7 @@ export default function ApplicantForm({
               <option value="Ms.">Ms.</option>
               <option value="M/s.">M/s.</option>
             </select>
+            {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title}</p>}
           </div>
 
           {/* Name */}
@@ -311,6 +371,7 @@ export default function ApplicantForm({
               type="text"
               value={data.name || ''}
               onChange={(e) => handleFieldChange('name', e.target.value)}
+              onBlur={() => handleFieldBlur('name')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.name ? 'border-red-500' : 'border-gray-300'
                 }`}
               placeholder="Enter full name"
@@ -321,9 +382,13 @@ export default function ApplicantForm({
 
           {/* Son/Wife/Daughter of */}
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Relation <span className="text-red-500">*</span>
+            </label>
             <select
               value={data.relation || ''}
               onChange={(e) => handleFieldChange('relation', e.target.value)}
+              onBlur={() => handleFieldBlur('relation')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.relation ? 'border-red-500' : 'border-gray-300'
                 }`}
             >
@@ -332,12 +397,17 @@ export default function ApplicantForm({
               <option value="Daughter of">Daughter of</option>
               <option value="Wife of">Wife of</option>
             </select>
+            {errors.relation && <p className="mt-1 text-sm text-red-500">{errors.relation}</p>}
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Son/Wife/Daughter of <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               value={data.sonWifeDaughterOf || ''}
               onChange={(e) => handleFieldChange('sonWifeDaughterOf', e.target.value)}
+              onBlur={() => handleFieldBlur('sonWifeDaughterOf')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.sonWifeDaughterOf ? 'border-red-500' : 'border-gray-300'
                 }`}
               placeholder="Enter relationship and name"
@@ -355,11 +425,13 @@ export default function ApplicantForm({
               type="text"
               value={data.nationality || ''}
               onChange={(e) => handleFieldChange('nationality', e.target.value)}
+              onBlur={() => handleFieldBlur('nationality')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.nationality ? 'border-red-500' : 'border-gray-300'
                 }`}
               placeholder="Enter nationality"
               maxLength={30}
             />
+            {errors.nationality && <p className="mt-1 text-sm text-red-500">{errors.nationality}</p>}
           </div>
 
           {/* Age and DOB in one row */}
@@ -378,9 +450,11 @@ export default function ApplicantForm({
                   .toISOString()
                   .split('T')[0]}
                 onChange={(e) => handleFieldChange('dob', e.target.value)}
+                onBlur={() => handleFieldBlur('dob')}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.dob ? 'border-red-500' : 'border-gray-300'
                   }`}
               />
+              {errors.dob && <p className="mt-1 text-sm text-red-500">{errors.dob}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -396,6 +470,7 @@ export default function ApplicantForm({
                 readOnly
                 maxLength={3}
               />
+              {errors.age && <p className="mt-1 text-sm text-red-500">{errors.age}</p>}
             </div>
 
           </div>
@@ -409,11 +484,13 @@ export default function ApplicantForm({
               type="text"
               value={data.profession || ''}
               onChange={(e) => handleFieldChange('profession', e.target.value)}
+              onBlur={() => handleFieldBlur('profession')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.profession ? 'border-red-500' : 'border-gray-300'
                 }`}
               placeholder="Enter profession"
               maxLength={50}
             />
+            {errors.profession && <p className="mt-1 text-sm text-red-500">{errors.profession}</p>}
           </div>
 
           {/* Aadhaar */}
@@ -425,6 +502,7 @@ export default function ApplicantForm({
               type="text"
               value={data.aadhaar || ''}
               onChange={(e) => handleFieldChange('aadhaar', e.target.value)}
+            
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.aadhaar ? 'border-red-500' : 'border-gray-300'
                 }`}
               placeholder="Enter 12-digit Aadhaar"
@@ -438,7 +516,7 @@ export default function ApplicantForm({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Residential Status <span className="text-red-500">*</span>
             </label>
-            <div className="flex items-center gap-4">
+            <div className={`flex items-center gap-4 p-3 rounded-md ${errors.residentialStatus ? 'border-2 border-red-500 bg-red-50' : ''}`}>
               <label className="flex items-center whitespace-nowrap">
                 <input
                   type="radio"
@@ -446,6 +524,7 @@ export default function ApplicantForm({
                   value="Resident"
                   checked={data.residentialStatus === 'Resident'}
                   onChange={(e) => handleFieldChange('residentialStatus', e.target.value)}
+                  onBlur={() => handleFieldBlur('residentialStatus')}
                   className="mr-2"
                 />
                 <span className="text-sm">Resident</span>
@@ -458,6 +537,7 @@ export default function ApplicantForm({
                   value="Non-Resident"
                   checked={data.residentialStatus === 'Non-Resident'}
                   onChange={(e) => handleFieldChange('residentialStatus', e.target.value)}
+                  onBlur={() => handleFieldBlur('residentialStatus')}
                   className="mr-2"
                 />
                 <span className="text-sm">Non-Resident</span>
@@ -470,12 +550,13 @@ export default function ApplicantForm({
                   value="Foreign National of Indian Origin"
                   checked={data.residentialStatus === 'Foreign National of Indian Origin'}
                   onChange={(e) => handleFieldChange('residentialStatus', e.target.value)}
+                  onBlur={() => handleFieldBlur('residentialStatus')}
                   className="mr-2"
                 />
                 <span className="text-sm">Foreign National of Indian Origin</span>
               </label>
             </div>
-
+            {errors.residentialStatus && <p className="mt-1 text-sm text-red-500">{errors.residentialStatus}</p>}
           </div>
 
           {/* PAN */}
@@ -490,6 +571,7 @@ export default function ApplicantForm({
               onChange={(e) =>
                 handleFieldChange('pan', e.target.value.toUpperCase())
               }
+              onBlur={() => handleFieldBlur('pan')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.pan ? 'border-red-500' : 'border-gray-300'
                 }`}
               placeholder="ABCDE1234F"
@@ -525,8 +607,9 @@ export default function ApplicantForm({
             <textarea
               value={data.correspondenceAddress || ''}
               onChange={(e) => handleFieldChange('correspondenceAddress', e.target.value)}
+              onBlur={() => handleFieldBlur('correspondenceAddress')}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.correspondenceAddress ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Enter correspondence address (line 1)"
             />
             {errors.correspondenceAddress && <p className="mt-1 text-sm text-red-500">{errors.correspondenceAddress}</p>}
@@ -558,6 +641,7 @@ export default function ApplicantForm({
                 type="tel"
                 value={data.phone || ''}
                 onChange={(e) => handleFieldChange('phone', e.target.value)}
+                onBlur={() => handleFieldBlur('phone')}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter 10-digit mobile"
@@ -576,6 +660,7 @@ export default function ApplicantForm({
               type="email"
               value={data.email || ''}
               onChange={(e) => handleFieldChange('email', e.target.value)}
+              onBlur={() => handleFieldBlur('email')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
                 }`}
               placeholder="Enter email address"
@@ -804,14 +889,16 @@ export default function ApplicantForm({
             <span className="ml-2 text-xs text-gray-500">(Applicant {applicantNumber} signature - applies to all signature fields for this applicant)</span>
           </label>
           <div className="flex items-center gap-4">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleSignatureUpload}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
+            <div className="flex-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleSignatureUpload}
+                className={`block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${errors.signature ? 'border border-red-500 rounded' : ''}`}
+              />
+            </div>
             {data.signature && (
-              <div className="w-40 h-20 border-2 border-gray-300 rounded overflow-hidden bg-white flex-shrink-0">
+              <div className={`w-40 h-20 border-2 rounded overflow-hidden bg-white flex-shrink-0 ${errors.signature ? 'border-red-500' : 'border-gray-300'}`}>
                 <img
                   src={data.signature}
                   alt={`Applicant ${applicantNumber} Signature`}
@@ -819,8 +906,13 @@ export default function ApplicantForm({
                 />
               </div>
             )}
+            {!data.signature && (applicantNumber === 1 || applicantNumber === 2) && errors.signature && (
+              <div className={`w-40 h-20 border-2 border-red-500 border-dashed rounded overflow-hidden bg-red-50 flex-shrink-0 flex items-center justify-center`}>
+                <span className="text-red-500 text-xs text-center px-2">Signature Required</span>
+              </div>
+            )}
           </div>
-          {!data.signature && (
+          {!data.signature && !errors.signature && (
             <p className="mt-1 text-sm text-gray-500">
               Upload signature image (JPG, PNG, Max 200KB) - This signature will be applied to all signature fields for Applicant {applicantNumber} across all pages
             </p>
