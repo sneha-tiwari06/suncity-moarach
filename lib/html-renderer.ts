@@ -82,7 +82,7 @@ function renderSignatureFooterHTML(formData: FormData): string {
   // Show all available signatures on all pages
   if (!hasFirstSignature && !hasSecondSignature && !hasThirdSignature) return '';
 
-  let html = '<div style="padding-top: 12px; display: flex; align-items: flex-start; gap: 40px; align-self: end;">';
+  let html = '<div style="padding-top: 12px; display: flex; align-items: flex-start; gap: 20px; justify-content: space-between; align-self: end;">';
 
   if (hasFirstSignature) {
     html += `
@@ -94,11 +94,11 @@ function renderSignatureFooterHTML(formData: FormData): string {
           <div style="margin-bottom: 4px; text-align: center;">
             <span style="color: #58595b; font-style: italic; font-size: 11px;">Sole/First Applicant</span>
           </div>
-          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
+          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
             <img src="${formData.applicants[0].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
           </div>
         </div>
-      </div>
+      <div>
     `;
   }
 
@@ -112,11 +112,11 @@ function renderSignatureFooterHTML(formData: FormData): string {
           <div style="margin-bottom: 4px; text-align: center;">
             <span style="color: #58595b; font-style: italic; font-size: 11px;">Second Applicant</span>
           </div>
-          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
+          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
             <img src="${formData.applicants[1].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
           </div>
         </div>
-      </div>
+      <div>
     `;
   }
 
@@ -130,7 +130,7 @@ function renderSignatureFooterHTML(formData: FormData): string {
           <div style="margin-bottom: 4px; text-align: center;">
             <span style="color: #58595b; font-style: italic; font-size: 11px;">Third Applicant</span>
           </div>
-          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 170px; height: 45px; display: flex; align-items: center; justify-content: center;">
+          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
             <img src="${formData.applicants[2].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
           </div>
         </div>
@@ -275,10 +275,10 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           box-sizing: border-box;
           height: 100%;
           display: grid;
-          grid-template-rows: 86px auto auto;
+          grid-template-rows: 65px auto auto;
         }
         .header {
-          margin-bottom: 24px;
+          margin-bottom: 12px;
         }
         .field-row {
           display: flex;
@@ -331,7 +331,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           width: 100%;
         }
         .photo-container {
-          aspect-ratio: 3/4;
+          aspect-ratio: 4/5;
           background: white;
           border: 1px solid #9ca3af;
           display: flex;
@@ -414,13 +414,15 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                   <div class="label">Nationality:</div>
                   ${renderCharacterBoxesHTML(applicant.nationality || '', 20, APPLICANT_BOX_WIDTH)}
                 </div>
-                <div class="field-row">
-                  <div class="label">Age:</div>
-                  ${renderCharacterBoxesHTML(applicant.age || '', 20, APPLICANT_BOX_WIDTH)}
-                </div>
-                <div class="field-row">
-                  <div class="label">DOB:</div>
-                  ${renderCharacterBoxesHTML(formattedDOB, 20, APPLICANT_BOX_WIDTH)}
+                <div style="display: flex; gap: 20px;">
+                  <div class="field-row">
+                    <div class="label">Age (in years):</div>
+                    ${renderCharacterBoxesHTML(applicant.age || '', 5, APPLICANT_BOX_WIDTH)}
+                  </div>
+                  <div class="field-row">
+                    <div class="label" style="width:auto; min-width:50px;">DOB:</div>
+                    ${renderCharacterBoxesHTML(applicant.dob || '', 10, APPLICANT_BOX_WIDTH)}
+                  </div>
                 </div>
                 <div class="field-row">
                   <div class="label">Profession:</div>
@@ -487,13 +489,15 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                   }).join('')}
                 </div>
               </div>
-              <div class="field-row">
-                <div class="label">Tel No.:</div>
-                ${renderCharacterBoxesHTML(applicant.telNo || '', 28, APPLICANT_BOX_WIDTH)}
-              </div>
-              <div class="field-row">
-                <div class="label">Mobile:</div>
-                ${renderCharacterBoxesHTML(applicant.phone || '', 28, APPLICANT_BOX_WIDTH)}
+              <div style="display: flex; gap: 24px;">
+                <div class="field-row">
+                  <div class="label">Tel No.:</div>
+                  ${renderCharacterBoxesHTML(applicant.telNo || '', 12, APPLICANT_BOX_WIDTH)}
+                </div>
+                <div class="field-row">
+                  <div class="label" style="width:auto; min-width:50px;">Mobile:</div>
+                  ${renderCharacterBoxesHTML(applicant.phone || '', 12, APPLICANT_BOX_WIDTH)}
+                </div>
               </div>
               <div class="field-row">
                 <div class="label">E-Mail ID:</div>
@@ -503,8 +507,8 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           </div>
 
           ${applicantNumber === 3 ? `
-            <div class="fields-area" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #58595b;">
-              <h2 style="text-transform: uppercase; font-size: 12px;">OR</h2>
+            <div class="fields-area" style="gap:5px">
+              <h2 style="text-transform: uppercase; font-size: 12px; text-align: center">OR</h2>
               <p style="font-size: 11px; font-style: italic; color: #58595b; ">
                 [If the allottee is company, firm, HUF, association / society]
               </p>
@@ -516,11 +520,11 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                 </div>
                 
                 <div class="field-row" style="align-items: flex-start;">
-                  <div class="label" style="padding-top: 4px;">Reg. Office/Corporate Office:</div>
+                  <div class="label" style="padding-top: 4px; width: 165px">Reg. Office/Corporate Office:</div>
                   <div class="multi-line-field">
                     ${Array.from({ length: 2 }, (_, i) => {
                       const lineValue = i === 0 ? (applicant.regOfficeLine1 || '') : (applicant.regOfficeLine2 || '');
-                      return `<div>${renderCharacterBoxesHTML(lineValue, 28, APPLICANT_BOX_WIDTH)}</div>`;
+                      return `<div>${renderCharacterBoxesHTML(lineValue, 25, APPLICANT_BOX_WIDTH)}</div>`;
                     }).join('')}
                   </div>
                 </div>
@@ -570,7 +574,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                   <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
                     <div class="field-row">
                       <div class="label">Fax No.:</div>
-                      ${renderCharacterBoxesHTML(applicant.companyFaxNo || '', 20, APPLICANT_BOX_WIDTH)}
+                      ${renderCharacterBoxesHTML(applicant.companyFaxNo || '', 11, APPLICANT_BOX_WIDTH)}
                     </div>
                   </div>
                 </div>
@@ -699,10 +703,10 @@ export function renderApartmentFormHTML(formData: FormData): string {
           box-sizing: border-box;
           height: 100%;
           display: grid;
-          grid-template-rows: 86px auto auto;
+          grid-template-rows: 65px auto auto;
         }
         .header {
-          margin-bottom: 24px;
+          margin-bottom: 12px;
         }
         .fields-area {
           display: flex;
@@ -717,7 +721,7 @@ export function renderApartmentFormHTML(formData: FormData): string {
           gap: ${APARTMENT_FIELD_GAP}px;
           margin-bottom: 10px;
         }
-        .label {åå
+        .label {
           color: #58595b;
           font-size: 12px;
           width: 85px;
