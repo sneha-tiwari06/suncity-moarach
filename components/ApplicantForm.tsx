@@ -117,20 +117,11 @@ export default function ApplicantForm({
       formattedValue = capitalizeFirstLetter(value);
     }
 
-    // Validate (skip validation for 3rd applicant)
-    if (applicantNumber !== 3) {
-      const error = validateField(field, formattedValue);
-      if (error) {
-        setErrors(prev => ({ ...prev, [field]: error }));
-      } else {
-        setErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
-        });
-      }
+    // Validate
+    const error = validateField(field, formattedValue);
+    if (error) {
+      setErrors(prev => ({ ...prev, [field]: error }));
     } else {
-      // Clear any errors for 3rd applicant (no validation)
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
@@ -148,11 +139,6 @@ export default function ApplicantForm({
     return /^[6-9]\d{9}$/.test(phone);
   };
   const validateField = (field: keyof ApplicantData, value: any): string => {
-    // No validation for 3rd applicant
-    if (applicantNumber === 3) {
-      return '';
-    }
-    
     if (field === 'aadhaar' && value && !validateAadhaar(value)) {
       return 'Invalid Aadhaar number (must be 12 digits)';
     }
@@ -201,17 +187,6 @@ export default function ApplicantForm({
   const handlePhotographUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
-    // Skip validation for 3rd applicant
-    if (applicantNumber === 3) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        handleFieldChange('photograph', base64String);
-      };
-      reader.readAsDataURL(file);
-      return;
-    }
 
     // Check file size (150KB = 150 * 1024 bytes)
     const maxSize = 300 * 1024; // 150KB in bytes
@@ -262,17 +237,6 @@ export default function ApplicantForm({
   const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Skip validation for 3rd applicant
-      if (applicantNumber === 3) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64String = reader.result as string;
-          handleFieldChange('signature', base64String);
-        };
-        reader.readAsDataURL(file);
-        return;
-      }
-
       // Validate file size (200KB = 200 * 1024 bytes)
       const maxSize = 200 * 1024; // 200KB in bytes
       if (file.size > maxSize) {
