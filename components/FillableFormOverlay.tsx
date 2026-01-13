@@ -108,6 +108,25 @@ export default function FillableFormOverlay({
   const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file size (200KB = 200 * 1024 bytes)
+      const maxSize = 200 * 1024; // 200KB in bytes
+      if (file.size > maxSize) {
+        setFieldErrors(prev => ({
+          ...prev,
+          signature: `File size exceeds 200KB. Please upload a smaller file. (Current: ${(file.size / 1024).toFixed(2)}KB)`
+        }));
+        // Reset the input
+        event.target.value = '';
+        return;
+      }
+
+      // Clear any previous signature errors
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.signature;
+        return newErrors;
+      });
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
@@ -365,6 +384,10 @@ export default function FillableFormOverlay({
           onChange={handleSignatureUpload}
           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
         />
+        <p className="mt-1 text-xs text-gray-500">JPG, PNG (Max 200KB)</p>
+        {fieldErrors.signature && (
+          <p className="mt-1 text-sm text-red-500">{fieldErrors.signature}</p>
+        )}
         {applicantCount < 3 && (
           <button
             onClick={onAddApplicant}

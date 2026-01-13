@@ -210,6 +210,25 @@ export default function ApplicantForm({
   const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file size (200KB = 200 * 1024 bytes)
+      const maxSize = 200 * 1024; // 200KB in bytes
+      if (file.size > maxSize) {
+        setErrors(prev => ({
+          ...prev,
+          signature: `File size exceeds 200KB. Please upload a smaller file. (Current: ${(file.size / 1024).toFixed(2)}KB)`
+        }));
+        // Reset the input
+        event.target.value = '';
+        return;
+      }
+
+      // Clear any previous signature errors
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.signature;
+        return newErrors;
+      });
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
@@ -793,8 +812,11 @@ export default function ApplicantForm({
           </div>
           {!data.signature && (
             <p className="mt-1 text-sm text-gray-500">
-              Upload signature image (JPG, PNG) - This signature will be applied to all signature fields for Applicant {applicantNumber} across all pages
+              Upload signature image (JPG, PNG, Max 200KB) - This signature will be applied to all signature fields for Applicant {applicantNumber} across all pages
             </p>
+          )}
+          {errors.signature && (
+            <p className="mt-1 text-sm text-red-500">{errors.signature}</p>
           )}
           {data.signature && (
             <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
