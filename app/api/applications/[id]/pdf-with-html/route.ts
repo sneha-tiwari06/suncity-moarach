@@ -7,7 +7,7 @@ import Application from '@/models/Application';
 import path from 'path';
 import fs from 'fs';
 import { PDFDocument, PDFImage } from 'pdf-lib';
-import { renderApplicantFormHTML, renderApartmentFormHTML } from '@/lib/html-renderer';
+import { renderApplicantFormHTML, renderApartmentFormHTML, hasApplicant3Data } from '@/lib/html-renderer';
 import { page21ImageCoordinates } from '@/lib/pdf-coordinates';
 
 // Detect production environment
@@ -178,7 +178,8 @@ export async function GET(
     }
 
     // Page 7 - Applicant 3
-    if (applicantCount >= 3 && formData.applicants[2] && formData.applicants[2].name) {
+    // Show if any data is present (name or company fields), not just name
+    if (applicantCount >= 3 && formData.applicants[2] && hasApplicant3Data(formData.applicants[2])) {
       const html = renderApplicantFormHTML(formData.applicants[2], 3, formData);
       const pdf = await generatePDFFromHTML(html);
       htmlPages.push(pdf);

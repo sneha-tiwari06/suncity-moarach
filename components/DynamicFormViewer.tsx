@@ -163,7 +163,14 @@ export default function DynamicFormViewer({
           applicants: newApplicants,
         });
       } else if (applicantCount === 2) {
-        // When adding from second applicant, add third applicant
+        // Check if applicant 2 is empty (placeholder from skipping)
+        if (isApplicant2Empty()) {
+          // Applicant 2 exists but is empty - this means we're filling applicant 2, not adding applicant 3
+          // The form should already be available, so we don't need to do anything here
+          // This case is handled by the rendering logic showing the form
+          return;
+        }
+        // When adding from second applicant (and it's not empty), add third applicant
         const secondApplicant = formData.applicants[1];
         if (!isApplicantComplete(secondApplicant)) {
           alert('Please fill the second applicant form before adding a third applicant.');
@@ -188,10 +195,11 @@ export default function DynamicFormViewer({
         return;
       }
       
-      // Add empty placeholder for applicant 2 and then applicant 3
+      // Skip applicant 2 - add applicant 3 directly at index 2
+      // Add an empty object at index 1 to maintain array structure, but it will be treated as "skipped"
       const newApplicants = [
-        ...formData.applicants,
-        { ...initialApplicant }, // Empty applicant 2 placeholder
+        formData.applicants[0],
+        { ...initialApplicant }, // Empty placeholder for applicant 2 (will be treated as skipped)
         { ...initialApplicant }, // Applicant 3
       ];
       setApplicantCount(3);
@@ -205,7 +213,14 @@ export default function DynamicFormViewer({
   const handleRemoveApplicant = (index: number) => {
     if (applicantCount > 1 && index > 0) {
       // Remove only the specific applicant
-      const updatedApplicants = formData.applicants.filter((_, i) => i !== index);
+      let updatedApplicants = formData.applicants.filter((_, i) => i !== index);
+      
+      // If removing applicant 3 (index 2), and applicant 2 is empty (placeholder from skipping),
+      // also remove applicant 2 to clean up the array
+      if (index === 2 && updatedApplicants.length === 2 && isApplicant2Empty()) {
+        updatedApplicants = [updatedApplicants[0]]; // Keep only applicant 1
+      }
+      
       onFormDataChange({
         ...formData,
         applicants: updatedApplicants,
@@ -290,7 +305,7 @@ export default function DynamicFormViewer({
                         canRemove={false}
                         validationTrigger={validationTrigger}
                       />
-                      {(applicantCount === 1 || isApplicant2Empty()) && (
+                      {applicantCount === 1 && (
                         <div className="mt-6 pt-4 border-t border-gray-300 space-y-3">
                           <button
                             onClick={handleAddApplicant}
@@ -337,8 +352,10 @@ export default function DynamicFormViewer({
 
             // Page 6 - Replace with Applicant 2 Form (if exists)
             if (pageNumber === 6) {
-              // Show applicant 2 form if it exists (applicantCount >= 2)
-              if (applicantCount >= 2 && formData.applicants[1]) {
+              // Show applicant 2 form if it exists
+              // Hide it if applicant 3 exists and applicant 2 is empty (skipped placeholder case)
+              const isSkippedPlaceholder = applicantCount >= 3 && isApplicant2Empty();
+              if (applicantCount >= 2 && formData.applicants[1] && !isSkippedPlaceholder) {
                 return (
                   <div key={`form_page_6`} className="mb-6 relative flex justify-center w-full">
                     <div
@@ -414,17 +431,6 @@ export default function DynamicFormViewer({
                           onRemove={() => handleRemoveApplicant(2)}
                           validationTrigger={validationTrigger}
                         />
-                        {/* Show "Add Second Applicant" button if applicant 2 is empty */}
-                        {isApplicant2Empty() && (
-                          <div className="mt-6 pt-4 border-t border-gray-300">
-                            <button
-                              onClick={handleAddApplicant2When3Exists}
-                              className="w-full px-6 py-3 font-semibold rounded-lg shadow-lg transition-colors bg-blue-600 text-white hover:bg-blue-700"
-                            >
-                              + Add Second Applicant
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

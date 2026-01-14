@@ -216,10 +216,49 @@ function formatDOBToDDMMYYYY(dateStr: string): string {
 }
 
 /**
+ * Check if applicant 3 has any data (name or company fields)
+ */
+export function hasApplicant3Data(applicant: ApplicantData): boolean {
+  if (!applicant) return false;
+  
+  // Check if name exists
+  if (applicant.name && applicant.name.trim() !== '') return true;
+  
+  // Check company/firm/HUF fields
+  if (applicant.companyName && applicant.companyName.trim() !== '') return true;
+  if (applicant.regOfficeLine1 && applicant.regOfficeLine1.trim() !== '') return true;
+  if (applicant.authorizedSignatoryLine1 && applicant.authorizedSignatoryLine1.trim() !== '') return true;
+  if (applicant.companyPanOrTin && applicant.companyPanOrTin.trim() !== '') return true;
+  
+  // Check other common fields
+  if (applicant.title && applicant.title.trim() !== '') return true;
+  if (applicant.pan && applicant.pan.trim() !== '') return true;
+  if (applicant.email && applicant.email.trim() !== '') return true;
+  if (applicant.phone && applicant.phone.trim() !== '') return true;
+  if (applicant.photograph) return true;
+  if (applicant.signature) return true;
+  
+  return false;
+}
+
+/**
  * Render applicant form HTML (Page 5, 6, 7)
  */
 export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumber: number, formData: FormData): string {
-  if (!applicant || (!applicant.name && applicantNumber > 1)) return '';
+  if (!applicant) return '';
+  
+  // For applicant 1, always show (mandatory)
+  if (applicantNumber === 1) {
+    // Continue rendering
+  }
+  // For applicant 2, only show if name exists
+  else if (applicantNumber === 2) {
+    if (!applicant.name || applicant.name.trim() === '') return '';
+  }
+  // For applicant 3, show if any data exists (name or company fields)
+  else if (applicantNumber === 3) {
+    if (!hasApplicant3Data(applicant)) return '';
+  }
 
   const titleName = `${applicant.name || ''}`.trim() || '';
   const residentialStatus = applicant.residentialStatus || '';

@@ -104,7 +104,7 @@ export default function Home() {
     // Scroll to first error field across all applicants
     // Note: We don't auto-focus to avoid interrupting user typing
     const errorFields = document.querySelectorAll('[data-field-name]');
-    for (const field of errorFields) {
+    for (const field of Array.from(errorFields)) {
       const input = field.querySelector('input, select, textarea') as HTMLElement;
       if (input && (input.classList.contains('border-red-500') || field.querySelector('.text-red-500'))) {
         field.scrollIntoView({ behavior: 'smooth', block: 'center' });
