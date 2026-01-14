@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { validateAadhaar, validatePAN, validatePhone, validateEmail, formatAadhaar, formatPAN, formatPhone } from '@/lib/utils';
 import { ApplicantData } from '@/lib/types';
 
@@ -10,6 +10,7 @@ interface ApplicantFormProps {
   onChange: (data: ApplicantData) => void;
   canRemove?: boolean;
   onRemove?: () => void;
+  validationTrigger?: number; // When this changes, trigger validation on all fields
 }
 
 export default function ApplicantForm({
@@ -18,6 +19,7 @@ export default function ApplicantForm({
   onChange,
   canRemove = false,
   onRemove,
+  validationTrigger,
 }: ApplicantFormProps) {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -239,6 +241,64 @@ export default function ApplicantForm({
     return '';
   };
 
+  // Validate all required fields
+  const validateAllFields = () => {
+    if (applicantNumber !== 1 && applicantNumber !== 2) {
+      return; // Only validate applicants 1 and 2
+    }
+
+    const newErrors: { [key: string]: string } = {};
+    const requiredFields: (keyof ApplicantData)[] = [
+      'title',
+      'name',
+      'relation',
+      'sonWifeDaughterOf',
+      'nationality',
+      'dob',
+      'age',
+      'profession',
+      'aadhaar',
+      'residentialStatus',
+      'pan',
+      'correspondenceAddress',
+      'phone',
+      'email',
+      'signature',
+    ];
+
+    // Validate all required fields
+    requiredFields.forEach((field) => {
+      const error = validateField(field, data[field]);
+      if (error) {
+        newErrors[field] = error;
+      }
+    });
+
+    setErrors(newErrors);
+    
+    // Scroll to first error field if there are any errors
+    // Note: We don't auto-focus to avoid interrupting user typing
+    if (Object.keys(newErrors).length > 0) {
+      // Wait a bit for the DOM to update with error messages
+      setTimeout(() => {
+        const firstErrorField = Object.keys(newErrors)[0];
+        const fieldElement = document.querySelector(`[data-field-name="${firstErrorField}_${applicantNumber}"]`);
+        if (fieldElement) {
+          fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Don't auto-focus to avoid interrupting user typing
+        }
+      }, 100);
+    }
+  };
+
+  // Trigger validation when validationTrigger changes
+  useEffect(() => {
+    if (validationTrigger !== undefined && validationTrigger > 0) {
+      validateAllFields();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validationTrigger, data, applicantNumber]);
+
   const handlePhotographUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -342,7 +402,7 @@ export default function ApplicantForm({
         {/* Left Column - Form Fields */}
         <div className="md:col-span-2 space-y-4">
           {/* Title */}
-          <div>
+          <div data-field-name={`title_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Title <span className="text-red-500">*</span>
             </label>
@@ -363,7 +423,7 @@ export default function ApplicantForm({
           </div>
 
           {/* Name */}
-          <div>
+          <div data-field-name={`name_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Full Name <span className="text-red-500">*</span>
             </label>
@@ -381,7 +441,7 @@ export default function ApplicantForm({
           </div>
 
           {/* Son/Wife/Daughter of */}
-          <div>
+          <div data-field-name={`relation_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Relation <span className="text-red-500">*</span>
             </label>
@@ -399,7 +459,7 @@ export default function ApplicantForm({
             </select>
             {errors.relation && <p className="mt-1 text-sm text-red-500">{errors.relation}</p>}
           </div>
-          <div>
+          <div data-field-name={`sonWifeDaughterOf_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Son/Wife/Daughter of <span className="text-red-500">*</span>
             </label>
@@ -417,7 +477,7 @@ export default function ApplicantForm({
           </div>
 
           {/* Nationality */}
-          <div>
+          <div data-field-name={`nationality_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nationality <span className="text-red-500">*</span>
             </label>
@@ -436,7 +496,7 @@ export default function ApplicantForm({
 
           {/* Age and DOB in one row */}
           <div className="grid grid-cols-2 gap-4">
-            <div>
+            <div data-field-name={`dob_${applicantNumber}`}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Date of Birth (DOB) <span className="text-red-500">*</span>
               </label>
@@ -456,7 +516,7 @@ export default function ApplicantForm({
               />
               {errors.dob && <p className="mt-1 text-sm text-red-500">{errors.dob}</p>}
             </div>
-            <div>
+            <div data-field-name={`age_${applicantNumber}`}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Age <span className="text-red-500">*</span>
               </label>
@@ -476,7 +536,7 @@ export default function ApplicantForm({
           </div>
 
           {/* Profession */}
-          <div>
+          <div data-field-name={`profession_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Profession <span className="text-red-500">*</span>
             </label>
@@ -494,7 +554,7 @@ export default function ApplicantForm({
           </div>
 
           {/* Aadhaar */}
-          <div>
+          <div data-field-name={`aadhaar_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Aadhaar No. <span className="text-red-500">*</span>
             </label>
@@ -512,7 +572,7 @@ export default function ApplicantForm({
           </div>
 
           {/* Residential Status */}
-          <div>
+          <div data-field-name={`residentialStatus_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Residential Status <span className="text-red-500">*</span>
             </label>
@@ -560,7 +620,7 @@ export default function ApplicantForm({
           </div>
 
           {/* PAN */}
-          <div>
+          <div data-field-name={`pan_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Income Tax Permanent Account No. (PAN) <span className="text-red-500">*</span>
             </label>
@@ -600,7 +660,7 @@ export default function ApplicantForm({
           </div>
 
           {/* Correspondence Address */}
-          <div>
+          <div data-field-name={`correspondenceAddress_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Correspondence Address <span className="text-red-500">*</span>
             </label>
@@ -633,7 +693,7 @@ export default function ApplicantForm({
               {errors.telNo && <p className="mt-1 text-sm text-red-500">{errors.telNo}</p>}
             </div>
 
-            <div>
+            <div data-field-name={`phone_${applicantNumber}`}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Mobile <span className="text-red-500">*</span>
               </label>
@@ -652,7 +712,7 @@ export default function ApplicantForm({
           </div>
 
           {/* Email */}
-          <div>
+          <div data-field-name={`email_${applicantNumber}`}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               E-Mail ID <span className="text-red-500">*</span>
             </label>
@@ -883,7 +943,7 @@ export default function ApplicantForm({
         </div>
 
         {/* Signature Upload - Each applicant has their own signature */}
-        <div className="md:col-span-3 border-t-2 border-gray-300 pt-4 mt-4">
+        <div className="md:col-span-3 border-t-2 border-gray-300 pt-4 mt-4" data-field-name={`signature_${applicantNumber}`}>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Signature <span className="text-red-500">*</span>
             <span className="ml-2 text-xs text-gray-500">(Applicant {applicantNumber} signature - applies to all signature fields for this applicant)</span>

@@ -14,6 +14,7 @@ interface DynamicFormViewerProps {
   formData: FormData;
   onFormDataChange: (data: FormData) => void;
   onSubmit?: () => void;
+  validationTrigger?: number;
 }
 
 const initialApplicant: ApplicantData = {
@@ -46,6 +47,7 @@ export default function DynamicFormViewer({
   formData,
   onFormDataChange,
   onSubmit,
+  validationTrigger,
 }: DynamicFormViewerProps) {
   const [numPages, setNumPages] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -121,27 +123,78 @@ export default function DynamicFormViewer({
     return !!(applicant.name && applicant.name.trim() !== '');
   };
 
+  // Check if applicant 2 is empty (no name filled)
+  const isApplicant2Empty = (): boolean => {
+    return !formData.applicants[1] || !formData.applicants[1].name || formData.applicants[1].name.trim() === '';
+  };
+
+  // Handle adding applicant 2 when applicant 3 exists
+  const handleAddApplicant2When3Exists = () => {
+    // Ensure applicant 2 exists in the array
+    if (!formData.applicants[1]) {
+      const newApplicants = [
+        formData.applicants[0],
+        { ...initialApplicant }, // Add empty applicant 2
+        formData.applicants[2], // Keep applicant 3
+      ];
+      setApplicantCount(3);
+      onFormDataChange({
+        ...formData,
+        applicants: newApplicants,
+      });
+    }
+  };
+
   const handleAddApplicant = () => {
     if (applicantCount < 3) {
-      // Check if previous applicant(s) are complete
+      // Check if first applicant is complete
+      const firstApplicant = formData.applicants[0];
+      if (!isApplicantComplete(firstApplicant)) {
+        alert('Please fill the first applicant form before adding another applicant.');
+        return;
+      }
+      
       if (applicantCount === 1) {
-        // Can't add second applicant until first is complete
-        const firstApplicant = formData.applicants[0];
-        if (!isApplicantComplete(firstApplicant)) {
-          alert('Please fill the first applicant form before adding a second applicant.');
-          return;
-        }
+        // When adding from first applicant, add second applicant
+        const newApplicants = [...formData.applicants, { ...initialApplicant }];
+        setApplicantCount(applicantCount + 1);
+        onFormDataChange({
+          ...formData,
+          applicants: newApplicants,
+        });
       } else if (applicantCount === 2) {
-        // Can't add third applicant until second is complete
+        // When adding from second applicant, add third applicant
         const secondApplicant = formData.applicants[1];
         if (!isApplicantComplete(secondApplicant)) {
           alert('Please fill the second applicant form before adding a third applicant.');
           return;
         }
+        const newApplicants = [...formData.applicants, { ...initialApplicant }];
+        setApplicantCount(applicantCount + 1);
+        onFormDataChange({
+          ...formData,
+          applicants: newApplicants,
+        });
+      }
+    }
+  };
+
+  const handleAddThirdApplicant = () => {
+    if (applicantCount === 1) {
+      // Check if first applicant is complete
+      const firstApplicant = formData.applicants[0];
+      if (!isApplicantComplete(firstApplicant)) {
+        alert('Please fill the first applicant form before adding a third applicant.');
+        return;
       }
       
-      const newApplicants = [...formData.applicants, { ...initialApplicant }];
-      setApplicantCount(applicantCount + 1);
+      // Add empty placeholder for applicant 2 and then applicant 3
+      const newApplicants = [
+        ...formData.applicants,
+        { ...initialApplicant }, // Empty applicant 2 placeholder
+        { ...initialApplicant }, // Applicant 3
+      ];
+      setApplicantCount(3);
       onFormDataChange({
         ...formData,
         applicants: newApplicants,
@@ -151,12 +204,13 @@ export default function DynamicFormViewer({
 
   const handleRemoveApplicant = (index: number) => {
     if (applicantCount > 1 && index > 0) {
+      // Remove only the specific applicant
       const updatedApplicants = formData.applicants.filter((_, i) => i !== index);
-      setApplicantCount(applicantCount - 1);
       onFormDataChange({
         ...formData,
         applicants: updatedApplicants,
       });
+      // applicantCount will be updated by useEffect
     }
   };
 
@@ -166,7 +220,9 @@ export default function DynamicFormViewer({
 
   const shouldShowFormForPage = (pageNumber: number) => {
     if (pageNumber === 5 && applicantCount >= 1) return true;
+    // Show applicant 2 form if it exists (applicantCount >= 2)
     if (pageNumber === 6 && applicantCount >= 2) return true;
+    // Show applicant 3 form if it exists (applicantCount >= 3)
     if (pageNumber === 7 && applicantCount >= 3) return true;
     return false;
   };
@@ -232,9 +288,10 @@ export default function DynamicFormViewer({
                         data={formData.applicants[0] || { ...initialApplicant }}
                         onChange={(data) => handleApplicantChange(0, data)}
                         canRemove={false}
+                        validationTrigger={validationTrigger}
                       />
-                      {applicantCount === 1 && (
-                        <div className="mt-6 pt-4 border-t border-gray-300">
+                      {(applicantCount === 1 || isApplicant2Empty()) && (
+                        <div className="mt-6 pt-4 border-t border-gray-300 space-y-3">
                           <button
                             onClick={handleAddApplicant}
                             disabled={!isApplicantComplete(formData.applicants[0])}
@@ -246,9 +303,28 @@ export default function DynamicFormViewer({
                           >
                             + Add Second Applicant
                           </button>
+                          <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                              <div className="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                              <span className="px-2 bg-white text-gray-500">OR</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={handleAddThirdApplicant}
+                            disabled={!isApplicantComplete(formData.applicants[0])}
+                            className={`w-full px-6 py-3 font-semibold rounded-lg shadow-lg transition-colors ${
+                              isApplicantComplete(formData.applicants[0])
+                                ? 'bg-green-600 text-white hover:bg-green-700'
+                                : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                            }`}
+                          >
+                            + Add Third Applicant (Skip Second)
+                          </button>
                           {!isApplicantComplete(formData.applicants[0]) && (
                             <p className="mt-2 text-sm text-gray-500 text-center">
-                              Please fill the first applicant form to add a second applicant
+                              Please fill the first applicant form to add another applicant
                             </p>
                           )}
                         </div>
@@ -261,7 +337,8 @@ export default function DynamicFormViewer({
 
             // Page 6 - Replace with Applicant 2 Form (if exists)
             if (pageNumber === 6) {
-              if (applicantCount >= 2) {
+              // Show applicant 2 form if it exists (applicantCount >= 2)
+              if (applicantCount >= 2 && formData.applicants[1]) {
                 return (
                   <div key={`form_page_6`} className="mb-6 relative flex justify-center w-full">
                     <div
@@ -282,6 +359,7 @@ export default function DynamicFormViewer({
                           onChange={(data) => handleApplicantChange(1, data)}
                           canRemove={true}
                           onRemove={() => handleRemoveApplicant(1)}
+                          validationTrigger={validationTrigger}
                         />
                         {applicantCount === 2 && (
                           <div className="mt-6 pt-4 border-t border-gray-300">
@@ -308,7 +386,7 @@ export default function DynamicFormViewer({
                   </div>
                 );
               }
-              return null; // Don't show page 6 if applicant 2 doesn't exist
+              return null; // Don't show page 6 if applicant 2 doesn't exist or is empty
             }
 
             // Page 7 - Replace with Applicant 3 Form (if exists)
@@ -334,7 +412,19 @@ export default function DynamicFormViewer({
                           onChange={(data) => handleApplicantChange(2, data)}
                           canRemove={true}
                           onRemove={() => handleRemoveApplicant(2)}
+                          validationTrigger={validationTrigger}
                         />
+                        {/* Show "Add Second Applicant" button if applicant 2 is empty */}
+                        {isApplicant2Empty() && (
+                          <div className="mt-6 pt-4 border-t border-gray-300">
+                            <button
+                              onClick={handleAddApplicant2When3Exists}
+                              className="w-full px-6 py-3 font-semibold rounded-lg shadow-lg transition-colors bg-blue-600 text-white hover:bg-blue-700"
+                            >
+                              + Add Second Applicant
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
