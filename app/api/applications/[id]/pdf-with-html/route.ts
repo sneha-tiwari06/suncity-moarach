@@ -178,8 +178,9 @@ export async function GET(
     }
 
     // Page 7 - Applicant 3
-    // Show if any data is present (name or company fields), not just name
-    if (applicantCount >= 3 && formData.applicants[2] && hasApplicant3Data(formData.applicants[2])) {
+    // Show if any data is present (name or company fields), regardless of applicant 2
+    // Check if applicant 3 exists in the array (at index 2) and has data
+    if (formData.applicants && formData.applicants.length > 2 && formData.applicants[2] && hasApplicant3Data(formData.applicants[2])) {
       const html = renderApplicantFormHTML(formData.applicants[2], 3, formData);
       const pdf = await generatePDFFromHTML(html);
       htmlPages.push(pdf);
