@@ -35,6 +35,7 @@ export default function Home() {
     bhkType: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationTrigger, setValidationTrigger] = useState(0);
 
   const handleFormDataChange = (data: FormData) => {
     setFormData(data);
@@ -94,6 +95,24 @@ export default function Home() {
   };
 
   const handleSubmit = async () => {
+    // Trigger validation in all ApplicantForm components
+    setValidationTrigger(prev => prev + 1);
+    
+    // Wait a bit for validation to complete, then scroll to first error
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Scroll to first error field across all applicants
+    // Note: We don't auto-focus to avoid interrupting user typing
+    const errorFields = document.querySelectorAll('[data-field-name]');
+    for (const field of errorFields) {
+      const input = field.querySelector('input, select, textarea') as HTMLElement;
+      if (input && (input.classList.contains('border-red-500') || field.querySelector('.text-red-500'))) {
+        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Don't auto-focus to avoid interrupting user typing
+        break;
+      }
+    }
+    
     setIsSubmitting(true);
     try {
       // Calculate applicant count
@@ -120,9 +139,8 @@ export default function Home() {
         validationErrors.push(...errors2);
       }
 
-      // If there are validation errors, show them and prevent submission
+      // If there are validation errors, prevent submission (errors are shown in fields)
       if (validationErrors.length > 0) {
-        alert(`Please fix the following errors before submitting:\n\n${validationErrors.join('\n')}`);
         setIsSubmitting(false);
         return;
       }
@@ -172,6 +190,7 @@ export default function Home() {
             formData={formData}
             onFormDataChange={handleFormDataChange}
             onSubmit={handleSubmit}
+            validationTrigger={validationTrigger}
           />
         </div>
         
