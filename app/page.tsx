@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import DynamicFormViewer from '@/components/DynamicFormViewer';
 import { FormData, ApplicantData } from '@/lib/types';
+import { hasApplicant3Data } from '@/lib/applicant-utils';
 
 const initialApplicant: ApplicantData = {
   title: '',
@@ -116,7 +117,18 @@ export default function Home() {
     setIsSubmitting(true);
     try {
       // Calculate applicant count
-      const applicantCount = formData.applicants.filter(app => app.name && app.name.trim() !== '').length;
+      // For applicants 1 and 2, check if name exists
+      // For applicant 3, check if any data exists (name or company fields)
+      let applicantCount = 0;
+      if (formData.applicants[0] && formData.applicants[0].name && formData.applicants[0].name.trim() !== '') {
+        applicantCount++;
+      }
+      if (formData.applicants[1] && formData.applicants[1].name && formData.applicants[1].name.trim() !== '') {
+        applicantCount++;
+      }
+      if (formData.applicants[2] && hasApplicant3Data(formData.applicants[2])) {
+        applicantCount++;
+      }
       
       if (applicantCount === 0) {
         alert('Please fill at least one applicant form before submitting.');
@@ -124,11 +136,19 @@ export default function Home() {
         return;
       }
 
+      // Check if third applicant was added directly (skipped mode)
+      // This happens when applicant 3 exists, applicant 2 is empty (placeholder), and applicant 1 might be empty
+      const isThirdApplicantSkippedMode = 
+        formData.applicants.length >= 3 && 
+        formData.applicants[2] &&
+        (!formData.applicants[1] || !formData.applicants[1].name || formData.applicants[1].name.trim() === '');
+      
       // Strict validation for applicants 1 and 2
       const validationErrors: string[] = [];
       
-      // Validate applicant 1
-      if (formData.applicants[0]) {
+      // Validate applicant 1 only if third applicant was NOT added directly (skip mode)
+      // When third applicant is added directly, applicant 1 becomes optional
+      if (formData.applicants[0] && !isThirdApplicantSkippedMode) {
         const errors1 = validateApplicant(formData.applicants[0], 1);
         validationErrors.push(...errors1);
       }

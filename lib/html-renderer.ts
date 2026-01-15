@@ -1,6 +1,7 @@
 import { FormData, ApplicantData } from './types';
 import fs from 'fs';
 import path from 'path';
+import { hasApplicant3Data } from './applicant-utils';
 /**
  * Server-side HTML rendering utilities for pages 5-8
  * These generate HTML strings that match the preview page design
@@ -216,47 +217,14 @@ function formatDOBToDDMMYYYY(dateStr: string): string {
 }
 
 /**
- * Check if applicant 3 has any data (name or company fields)
- */
-export function hasApplicant3Data(applicant: ApplicantData): boolean {
-  if (!applicant) return false;
-  
-  // Check if name exists
-  if (applicant.name && applicant.name.trim() !== '') return true;
-  
-  // Check ALL company/firm/HUF fields (from the "OR" section)
-  if (applicant.companyName && applicant.companyName.trim() !== '') return true;
-  if (applicant.regOfficeLine1 && applicant.regOfficeLine1.trim() !== '') return true;
-  if (applicant.regOfficeLine2 && applicant.regOfficeLine2.trim() !== '') return true;
-  if (applicant.authorizedSignatoryLine1 && applicant.authorizedSignatoryLine1.trim() !== '') return true;
-  if (applicant.authorizedSignatoryLine2 && applicant.authorizedSignatoryLine2.trim() !== '') return true;
-  if (applicant.boardResolutionDate && applicant.boardResolutionDate.trim() !== '') return true;
-  if (applicant.companyPanOrTin && applicant.companyPanOrTin.trim() !== '') return true;
-  if (applicant.companyTelNo && applicant.companyTelNo.trim() !== '') return true;
-  if (applicant.companyMobileNo && applicant.companyMobileNo.trim() !== '') return true;
-  if (applicant.companyEmail && applicant.companyEmail.trim() !== '') return true;
-  if (applicant.companyFaxNo && applicant.companyFaxNo.trim() !== '') return true;
-  
-  // Check other common fields (personal details section)
-  if (applicant.title && applicant.title.trim() !== '') return true;
-  if (applicant.pan && applicant.pan.trim() !== '') return true;
-  if (applicant.email && applicant.email.trim() !== '') return true;
-  if (applicant.phone && applicant.phone.trim() !== '') return true;
-  if (applicant.photograph) return true;
-  if (applicant.signature) return true;
-  
-  return false;
-}
-
-/**
  * Render applicant form HTML (Page 5, 6, 7)
  */
 export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumber: number, formData: FormData): string {
   if (!applicant) return '';
   
-  // For applicant 1, always show (mandatory)
+  // For applicant 1, only show if name exists (now optional when skipping to third applicant)
   if (applicantNumber === 1) {
-    // Continue rendering
+    if (!applicant.name || applicant.name.trim() === '') return '';
   }
   // For applicant 2, only show if name exists
   else if (applicantNumber === 2) {

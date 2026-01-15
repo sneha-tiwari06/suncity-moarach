@@ -292,8 +292,10 @@ export default function ApplicantForm({
   };
 
   // Trigger validation when validationTrigger changes
+  // Skip validation if validationTrigger is undefined (means form is hidden/optional)
   useEffect(() => {
-    if (validationTrigger !== undefined && validationTrigger > 0) {
+    if (validationTrigger === undefined) return; // Don't validate if trigger is undefined (form is hidden)
+    if (validationTrigger > 0) {
       validateAllFields();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

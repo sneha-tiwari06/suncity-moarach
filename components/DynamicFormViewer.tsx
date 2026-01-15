@@ -53,10 +53,22 @@ export default function DynamicFormViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(1200);
   const [applicantCount, setApplicantCount] = useState(1);
+  const prevApplicantCountRef = useRef(1);
 
   // Sync applicantCount with formData.applicants.length
   useEffect(() => {
-    setApplicantCount(formData.applicants.length);
+    const previousCount = prevApplicantCountRef.current;
+    const newCount = formData.applicants.length;
+    
+    setApplicantCount(newCount);
+    prevApplicantCountRef.current = newCount;
+    
+    // Scroll to top when third applicant form opens (when count changes from 1 or 2 to 3)
+    if (previousCount < 3 && newCount === 3) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
   }, [formData.applicants.length]);
 
   // Use native ResizeObserver to track container width
@@ -128,6 +140,14 @@ export default function DynamicFormViewer({
     return !formData.applicants[1] || !formData.applicants[1].name || formData.applicants[1].name.trim() === '';
   };
 
+  // Check if we're in skipped mode (third applicant added directly, applicant 1 is optional)
+  const isSkippedMode = (): boolean => {
+    return applicantCount >= 3 && 
+           formData.applicants[2] && 
+           isApplicant2Empty() &&
+           (!formData.applicants[0] || !formData.applicants[0].name || formData.applicants[0].name.trim() === '');
+  };
+
   // Handle adding applicant 2 when applicant 3 exists
   const handleAddApplicant2When3Exists = () => {
     // Ensure applicant 2 exists in the array
@@ -188,17 +208,11 @@ export default function DynamicFormViewer({
 
   const handleAddThirdApplicant = () => {
     if (applicantCount === 1) {
-      // Check if first applicant is complete
-      const firstApplicant = formData.applicants[0];
-      if (!isApplicantComplete(firstApplicant)) {
-        alert('Please fill the first applicant form before adding a third applicant.');
-        return;
-      }
-      
       // Skip applicant 2 - add applicant 3 directly at index 2
+      // First applicant is now optional - user can fill only third applicant
       // Add an empty object at index 1 to maintain array structure, but it will be treated as "skipped"
       const newApplicants = [
-        formData.applicants[0],
+        formData.applicants[0] || { ...initialApplicant }, // Keep existing applicant 1 or empty
         { ...initialApplicant }, // Empty placeholder for applicant 2 (will be treated as skipped)
         { ...initialApplicant }, // Applicant 3
       ];
@@ -234,7 +248,11 @@ export default function DynamicFormViewer({
   };
 
   const shouldShowFormForPage = (pageNumber: number) => {
-    if (pageNumber === 5 && applicantCount >= 1) return true;
+    // Hide applicant 1 page if in skipped mode (third applicant open and applicant 1 is empty)
+    if (pageNumber === 5) {
+      if (isSkippedMode()) return false; // Hide applicant 1 when skipped to third
+      return applicantCount >= 1;
+    }
     // Show applicant 2 form if it exists (applicantCount >= 2)
     if (pageNumber === 6 && applicantCount >= 2) return true;
     // Show applicant 3 form if it exists (applicantCount >= 3)
@@ -283,7 +301,11 @@ export default function DynamicFormViewer({
             }
 
             // Page 5 - Replace with Applicant 1 Form
+            // Hide if in skipped mode (third applicant open and applicant 1 is empty)
             if (pageNumber === 5) {
+              if (isSkippedMode()) {
+                return null; // Don't render applicant 1 form when skipped to third
+              }
               return (
                 <div key={`form_page_5`} className="mb-6 relative flex justify-center w-full">
                   <div
@@ -303,7 +325,7 @@ export default function DynamicFormViewer({
                         data={formData.applicants[0] || { ...initialApplicant }}
                         onChange={(data) => handleApplicantChange(0, data)}
                         canRemove={false}
-                        validationTrigger={validationTrigger}
+                        validationTrigger={isSkippedMode() ? undefined : validationTrigger}
                       />
                       {applicantCount === 1 && (
                         <div className="mt-6 pt-4 border-t border-gray-300 space-y-3">
@@ -328,18 +350,13 @@ export default function DynamicFormViewer({
                           </div>
                           <button
                             onClick={handleAddThirdApplicant}
-                            disabled={!isApplicantComplete(formData.applicants[0])}
-                            className={`w-full px-6 py-3 font-semibold rounded-lg shadow-lg transition-colors ${
-                              isApplicantComplete(formData.applicants[0])
-                                ? 'bg-green-600 text-white hover:bg-green-700'
-                                : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                            }`}
+                            className="w-full px-6 py-3 font-semibold rounded-lg shadow-lg transition-colors bg-green-600 text-white hover:bg-green-700"
                           >
                             + Add Third Applicant (Skip Second)
                           </button>
                           {!isApplicantComplete(formData.applicants[0]) && (
                             <p className="mt-2 text-sm text-gray-500 text-center">
-                              Please fill the first applicant form to add another applicant
+                              Note: First applicant is optional when skipping to third applicant
                             </p>
                           )}
                         </div>

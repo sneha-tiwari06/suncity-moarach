@@ -7,7 +7,8 @@ import Application from '@/models/Application';
 import path from 'path';
 import fs from 'fs';
 import { PDFDocument, PDFImage } from 'pdf-lib';
-import { renderApplicantFormHTML, renderApartmentFormHTML, hasApplicant3Data } from '@/lib/html-renderer';
+import { renderApplicantFormHTML, renderApartmentFormHTML } from '@/lib/html-renderer';
+import { hasApplicant3Data } from '@/lib/applicant-utils';
 import { page21ImageCoordinates } from '@/lib/pdf-coordinates';
 
 // Detect production environment
@@ -163,8 +164,8 @@ export async function GET(
     };
 
     // Generate HTML pages for 5-8 and convert to PDF
-    // Page 5 - Applicant 1
-    if (applicantCount >= 1 && formData.applicants[0]) {
+    // Page 5 - Applicant 1 (only show if name exists - now optional when skipping to third applicant)
+    if (formData.applicants[0] && formData.applicants[0].name && formData.applicants[0].name.trim() !== '') {
       const html = renderApplicantFormHTML(formData.applicants[0], 1, formData);
       const pdf = await generatePDFFromHTML(html);
       htmlPages.push(pdf);
