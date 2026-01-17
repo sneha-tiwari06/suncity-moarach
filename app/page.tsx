@@ -84,8 +84,11 @@ export default function Home() {
       if (applicant.pan && !/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(applicant.pan)) {
         errors.push(`Invalid PAN number for Applicant ${applicantNumber}`);
       }
-      if (applicant.phone && (!/^[6-9]/.test(applicant.phone) || applicant.phone.length !== 10)) {
-        errors.push(`Invalid mobile number for Applicant ${applicantNumber} (must start with 6-9 and be 10 digits)`);
+      if (applicant.phone) {
+        const digitsOnly = applicant.phone.replace(/\D/g, '');
+        if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+          errors.push(`Invalid mobile number for Applicant ${applicantNumber} (must be between 10-15 digits)`);
+        }
       }
       if (applicant.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(applicant.email)) {
         errors.push(`Invalid email address for Applicant ${applicantNumber}`);

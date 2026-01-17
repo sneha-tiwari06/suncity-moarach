@@ -155,7 +155,7 @@ export default function ApplicantForm({
     }
   };
   const validatePhone = (phone: any) => {
-    return /^[6-9]\d{9}$/.test(phone);
+    return /^[0-9]\d{14}$/.test(phone);
   };
   const validateField = (field: keyof ApplicantData, value: any): string => {
     // Strict validation for applicants 1 and 2 - all fields are required
@@ -202,14 +202,12 @@ export default function ApplicantForm({
       }
     }
     if (field === 'phone' && value) {
-      if (!/^[6-9]/.test(value)) {
-        return 'Phone number must start with 6, 7, 8, or 9.';
-      }
-      if (!/^\d+$/.test(value)) {
+      const digitsOnly = value.toString().replace(/\D/g, '');
+      if (!/^\d+$/.test(digitsOnly)) {
         return 'Phone number must contain only digits.';
       }
-      if (value.length !== 10) {
-        return 'Phone number must be exactly 10 digits.';
+      if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+        return 'Phone number must be between 10-15 digits.';
       }
     }
     if (field === 'telNo' && value) {
@@ -218,14 +216,12 @@ export default function ApplicantForm({
       }
     }
     if (field === 'companyMobileNo' && value) {
-      if (!/^[6-9]/.test(value)) {
-        return 'Phone number must start with 6, 7, 8, or 9.';
-      }
-      if (!/^\d+$/.test(value)) {
+      const digitsOnly = value.toString().replace(/\D/g, '');
+      if (!/^\d+$/.test(digitsOnly)) {
         return 'Phone number must contain only digits.';
       }
-      if (value.length !== 10) {
-        return 'Phone number must be exactly 10 digits.';
+      if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+        return 'Phone number must be between 10-15 digits.';
       }
     }
     if (field === 'companyTelNo' && value) {
@@ -707,7 +703,7 @@ export default function ApplicantForm({
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter 10-digit mobile"
-                maxLength={10}
+                maxLength={15}
               />
               {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
             </div>
@@ -848,7 +844,7 @@ export default function ApplicantForm({
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.companyMobileNo ? 'border-red-500' : 'border-gray-300'
                         }`}
                       placeholder="Enter mobile number"
-                      maxLength={10}
+                      maxLength={15}
                     />
                     {errors.companyMobileNo && <p className="mt-1 text-sm text-red-500">{errors.companyMobileNo}</p>}
                   </div>

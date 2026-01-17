@@ -8,7 +8,9 @@ export const validatePAN = (pan: string): boolean => {
 };
 
 export const validatePhone = (phone: string): boolean => {
-  return /^\d{10}$/.test(phone);
+  // Accept phone numbers between 10-15 digits
+  const digitsOnly = phone.replace(/\D/g, '');
+  return /^\d{10,15}$/.test(digitsOnly);
 };
 
 export const validateEmail = (email: string): boolean => {
@@ -25,5 +27,5 @@ export const formatPAN = (value: string): string => {
 };
 
 export const formatPhone = (value: string): string => {
-  return value.replace(/\D/g, '').slice(0, 10);
+  return value.replace(/\D/g, '').slice(0, 15);
 };

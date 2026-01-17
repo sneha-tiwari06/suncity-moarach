@@ -204,7 +204,6 @@ export default function ApartmentDeclarationForm({
                 ) : (
                   <>
                     <option value="3bhk">3 BHK</option>
-                    <option value="4bhk">4 BHK</option>
                   </>
                 )}
               </select>
@@ -217,9 +216,10 @@ export default function ApartmentDeclarationForm({
               </label>
               <input
                 type="number"
+                min={1}
                 value={formData.floor || ''}
                 onChange={(e) => handleFieldChange('floor', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 maxLength={3}
                 placeholder="Enter floor number"
               />

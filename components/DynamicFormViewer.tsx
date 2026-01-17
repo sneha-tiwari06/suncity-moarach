@@ -63,12 +63,7 @@ export default function DynamicFormViewer({
     setApplicantCount(newCount);
     prevApplicantCountRef.current = newCount;
     
-    // Scroll to top when third applicant form opens (when count changes from 1 or 2 to 3)
-    if (previousCount < 3 && newCount === 3) {
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
-    }
+    
   }, [formData.applicants.length]);
 
   // Use native ResizeObserver to track container width

@@ -27,47 +27,135 @@ const APARTMENT_GAP = 16;
 
 /**
  * Render character boxes HTML - matches preview page exactly
+ * Dynamically creates boxes based on data length and calculates boxes per line
+ * Ensures all data is displayed and boxes only wrap when a line is full
+ * 
+ * @param value - The text value to render
+ * @param initialBoxCount - Maximum boxes per line (for fields like name: 20, ward: 23, address: 28)
+ * @param boxWidth - Width of each character box in pixels
  */
-function renderCharacterBoxesHTML(value: string, boxCount: number = 28, boxWidth: number = APPLICANT_BOX_WIDTH): string {
+function renderCharacterBoxesHTML(value: string, initialBoxCount: number = 28, boxWidth: number = APPLICANT_BOX_WIDTH): string {
   const boxHeight = APPLICANT_BOX_HEIGHT; // 20px
   const borderWidth = APPLICANT_BORDER_WIDTH; // 1px
-  const chars = value ? value.toString().split('').slice(0, boxCount) : [];
-
-  const boxes = Array.from({ length: boxCount }, (_, i) => {
-    const char = chars[i] || '';
+  
+  // Get all characters from value (don't truncate - show all data)
+  const chars = value ? value.toString().split('') : [];
+  
+  // Calculate available width for boxes
+  // Container width: 210mm (A4) = ~794px
+  // Minus padding: 40px (20px each side)
+  // Minus label width: ~100-200px (varies by field)
+  // Minus field gap: 10px
+  // Approximate available width: 794 - 40 - 150 - 10 = ~594px
+  const containerWidthPx = 794; // A4 width in pixels (210mm * 3.779527559)
+  const padding = 40; // Total horizontal padding
+  const avgLabelWidth = 150; // Average label width
+  const fieldGap = 10;
+  const availableWidth = containerWidthPx - padding - avgLabelWidth - fieldGap; // ~594px
+  
+  // Calculate how many boxes fit per line based on available width
+  const maxBoxesPerLineByWidth = Math.floor(availableWidth / boxWidth);
+  
+  // Use initialBoxCount as the maximum boxes per line
+  // This ensures fields with specific character limits break at that limit
+  // For example: name fields (20), ward fields (23), address fields (28)
+  // If initialBoxCount is very large (like 46 or 84 for multi-line fields),
+  // we need to determine the per-line limit differently
+  // Common limits: 20, 23, 25, 28 - if initialBoxCount is significantly larger,
+  // it might indicate total boxes, so we estimate per-line limit
+  let boxesPerLine: number;
+  if (initialBoxCount <= 30) {
+    // For single-line or small multi-line fields, use initialBoxCount directly
+    boxesPerLine = initialBoxCount;
+  } else if (initialBoxCount <= 50) {
+    // Likely 2 lines (e.g., 46 = 2 × 23), use half
+    boxesPerLine = Math.ceil(initialBoxCount / 2);
+  } else {
+    // Likely 3 lines (e.g., 84 = 3 × 28), use third
+    boxesPerLine = Math.ceil(initialBoxCount / 3);
+  }
+  
+  // Don't exceed the width-based limit
+  boxesPerLine = Math.min(boxesPerLine, maxBoxesPerLineByWidth);
+  
+  // Determine total boxes needed:
+  // - If data is shorter or equal to initialBoxCount: use initialBoxCount (for initial layout)
+  // - If data is longer: create enough boxes to show all data (dynamic expansion)
+  const totalBoxes = chars.length > initialBoxCount ? chars.length : initialBoxCount;
+  
+  // Group boxes into rows to control line breaks precisely
+  // Always fill a line completely before moving to the next line
+  const rows: string[][] = [];
+  let remainingBoxes = totalBoxes;
+  let charIndex = 0;
+  
+  while (remainingBoxes > 0) {
+    const boxesInThisRow = Math.min(boxesPerLine, remainingBoxes);
+    const rowChars: string[] = [];
+    
+    // Fill this row with characters (if available) or empty boxes
+    for (let i = 0; i < boxesInThisRow; i++) {
+      if (charIndex < chars.length) {
+        rowChars.push(chars[charIndex]);
+        charIndex++;
+      } else {
+        // No more characters, add empty box
+        rowChars.push('');
+      }
+    }
+    
+    rows.push(rowChars);
+    remainingBoxes -= boxesInThisRow;
+  }
+  
+  // Render each row
+  const rowsHTML = rows.map((rowChars) => {
+    const boxes = rowChars.map((char) => {
+      return `
+        <div style="
+          width: ${boxWidth}px;
+          height: ${boxHeight}px;
+          min-width: ${boxWidth}px;
+          max-width: ${boxWidth}px;
+          min-height: ${boxHeight}px;
+          font-size: 10px;
+          font-weight: 600;
+          line-height: ${boxHeight}px;
+          border: ${borderWidth}px solid #ee1e23;
+          background-color: white;
+          color: #58595b;
+          text-align: center;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
+          flex-shrink: 0;
+          flex-grow: 0;
+        ">${char}</div>
+      `;
+    }).join('');
+    
     return `
       <div style="
-        width: ${boxWidth}px;
-        height: ${boxHeight}px;
-        min-width: ${boxWidth}px;
-        max-width: ${boxWidth}px;
-        min-height: ${boxHeight}px;
-        font-size: 10px;
-        font-weight: 600;
-        line-height: ${boxHeight}px;
-        border: ${borderWidth}px solid #ee1e23;
-        background-color: white;
-        color: #58595b;
-        text-align: center;
-        display: inline-flex;
+        display: flex;
+        flex-wrap: nowrap;
         align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-        flex-shrink: 0;
-        flex-grow: 0;
-      ">${char}</div>
+        gap: 1px;
+        flex-direction: row;
+        width: 100%;
+      ">${boxes}</div>
     `;
   }).join('');
 
   return `
     <div style="
-      overflow: hidden;
+      overflow: visible;
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 1px;
-      flex-direction: row;
-    ">${boxes}</div>
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      width: 100%;
+    ">${rowsHTML}</div>
   `;
 }
 
@@ -238,9 +326,10 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
   const titleName = `${applicant.name || ''}`.trim() || '';
   const residentialStatus = applicant.residentialStatus || '';
   
-  // Split multi-line fields
-  const itWardLines = (applicant.itWard || '').match(/.{1,20}/g) || [];
-  const addressLines = (applicant.correspondenceAddress || '').match(/.{1,20}/g) || [];
+  // Don't pre-split multi-line fields - let renderCharacterBoxesHTML handle it
+  // This ensures boxes fill completely before wrapping
+  const itWard = applicant.itWard || '';
+  const correspondenceAddress = applicant.correspondenceAddress || '';
   
   // Format DOB to DDMMYYYY
   const formattedDOB = formatDOBToDDMMYYYY(applicant.dob || '');
@@ -411,7 +500,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
 
           <div class="fields-area">
             <h2 style=" text-transform: uppercase; font-size: 12px; margin: 0;">
-                ${applicantNumber}. ${applicantNumber === 1 ? 'APPLICANT 1:-' : applicantNumber === 2 ? 'Second Applicant:-' : 'Third Applicant:-'}
+                ${applicantNumber}. ${applicantNumber === 1 ? 'SOLE OR FIRST APPLICANT(S):-' : applicantNumber === 2 ? 'JOINT/SECOND APPLICANT(S):-' : 'THIRD APPLICANT(S):-'}
               </h2>
             <div style="display: flex; gap: 12px;">
               <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
@@ -487,19 +576,13 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
               <div class="field-row" style="align-items: flex-start;">
                 <div class="label" style="padding-top: 4px; line-height: 1.25; width: calc(${APPLICANT_LABEL_WIDTH}px * 2); min-width: calc(${APPLICANT_LABEL_WIDTH}px * 2);">Ward / Circle / Special Range / Place, where assessed to income tax:</div>
                 <div class="multi-line-field">
-                  ${Array.from({ length: 2 }, (_, i) => {
-                    const lineValue = itWardLines[i] || '';
-                    return `<div>${renderCharacterBoxesHTML(lineValue, 23, APPLICANT_BOX_WIDTH)}</div>`;
-                  }).join('')}
+                  ${renderCharacterBoxesHTML(itWard, 46, APPLICANT_BOX_WIDTH)}
                 </div>
               </div>
               <div class="field-row" style="align-items: flex-start;">
                 <div class="label" style="padding-top: 4px;">Correspondence Address:</div>
                 <div class="multi-line-field">
-                  ${Array.from({ length: 3 }, (_, i) => {
-                    const lineValue = addressLines[i] || '';
-                    return `<div>${renderCharacterBoxesHTML(lineValue, 28, APPLICANT_BOX_WIDTH)}</div>`;
-                  }).join('')}
+                  ${renderCharacterBoxesHTML(correspondenceAddress, 84, APPLICANT_BOX_WIDTH)}
                 </div>
               </div>
               <div style="display: flex; gap: 24px;">
