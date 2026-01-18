@@ -277,7 +277,7 @@ export function renderSignatureFooterOverlayHTML(formData: FormData): string {
           display: flex;
           align-items: flex-start;
           gap: 20px;
-          margin-top: 100px;
+          margin-top: 50px;
           justify-content: space-between;
         }
       </style>
@@ -401,6 +401,12 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
       <meta charset="UTF-8">
       <meta name="viewport" content="width=612, initial-scale=1.0">
       <style>
+        @page:first {
+          margin-top: 0;
+        }
+        @page {
+          margin-top: 30px;
+        }
         * {
           margin: 0;
           padding: 0;
@@ -543,7 +549,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           align-items: flex-start;
           gap: 20px;
           justify-content: space-between;
-          margin-top: 100px;
+          margin-top: 50px;
         }
       </style>
     </head>
@@ -836,6 +842,12 @@ export function renderApartmentFormHTML(formData: FormData): string {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=612, initial-scale=1.0">
       <style>
+        @page:first {
+          margin-top: 0;
+        }
+        @page {
+          margin-top: 30px;
+        }
         * {
           margin: 0;
           padding: 0;
@@ -952,7 +964,7 @@ export function renderApartmentFormHTML(formData: FormData): string {
           align-items: flex-start;
           gap: 20px;
           justify-content: space-between;
-          margin-top: 100px;
+          margin-top: 50px;
         }
       </style>
     </head>
