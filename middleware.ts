@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
 
     // If no token, redisrect to login
     if (!token) {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/suncity-monarch-application-form-admin-panel', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
     const payload = verifyToken(token.value);
     if (!payload) {
       // Token is invalid, redirect to login
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/suncity-monarch-application-form-admin-panel', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       const response = NextResponse.redirect(loginUrl);
       response.cookies.delete('admin_token'); // Clear invalid token
@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
 
     // Check if user is admin (basic check - full check in API routes)
     if (payload.role !== 'admin') {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/suncity-monarch-application-form-admin-panel', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       const response = NextResponse.redirect(loginUrl);
       response.cookies.delete('admin_token');
@@ -38,7 +38,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect from login if already authenticated with valid token
-  if (pathname === '/login') {
+  if (pathname === '/suncity-monarch-application-form-admin-panel') {
     const token = request.cookies.get('admin_token');
     if (token) {
       const payload = verifyToken(token.value);
@@ -57,5 +57,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login'],
+  matcher: ['/admin/:path*', '/suncity-monarch-application-form-admin-panel'],
 };

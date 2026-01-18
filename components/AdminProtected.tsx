@@ -25,12 +25,12 @@ export default function AdminProtected({ children }: AdminProtectedProps) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
-        router.push('/login?redirect=/admin-dashboard');
+        router.push('/suncity-monarch-application-form-admin-panel?redirect=/admin-dashboard');
       }
     } catch (error) {
       console.error('Auth check error:', error);
       setIsAuthenticated(false);
-      router.push('/login?redirect=/admin-dashboard');
+      router.push('/suncity-monarch-application-form-admin-panel?redirect=/admin-dashboard');
     } finally {
       setIsLoading(false);
     }
