@@ -383,7 +383,7 @@ export default function ApplicantForm({
     <div className="mb-6">
       <div className="mb-4 pb-3 border-b-2 border-gray-300 flex justify-between items-center">
         <h2 className="text-xl font-bold text-gray-800 uppercase">
-          Applicant {applicantNumber} Details
+          {applicantNumber}. {applicantNumber === 1 ? 'Sole or First Applicant Detail' : applicantNumber === 2 ? 'Joint/Second Applicant Detail' : 'Third Applicant Detail'}
         </h2>
         {canRemove && onRemove && (
           <button
