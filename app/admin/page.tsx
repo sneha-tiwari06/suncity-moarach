@@ -51,11 +51,11 @@ export default function AdminDashboard() {
       if (response.ok && result.success) {
         setUser(result.user);
       } else {
-        router.push('/login?redirect=/admin-dashboard');
+        router.push('/suncity-monarch-application-form-admin-panel?redirect=/admin-dashboard');
       }
     } catch (error) {
       console.error('Auth check error:', error);
-      router.push('/login?redirect=/admin-dashboard');
+      router.push('/suncity-monarch-application-form-admin-panel?redirect=/admin-dashboard');
     } finally {
       setAuthLoading(false);
     }
@@ -64,11 +64,11 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
+      router.push('/suncity-monarch-application-form-admin-panel');
       router.refresh();
     } catch (error) {
       console.error('Logout error:', error);
-      router.push('/login');
+      router.push('/suncity-monarch-application-form-admin-panel');
     }
   };
 

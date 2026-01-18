@@ -31,9 +31,10 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 }) // Descending order
       .lean(); // Return plain JavaScript objects
 
-    // Map _id to id for frontend consistency and extract first applicant name
+    // Map _id to id for frontend consistency and extract applicant name
+    // Priority: First applicant name -> First applicant m/s name -> Third applicant name -> Third applicant m/s name
     const mappedApplications = applications.map((app: any) => {
-      let firstApplicantName = 'N/A';
+      let displayName = 'N/A';
       
       try {
         if (app.formData) {
@@ -42,8 +43,33 @@ export async function GET(request: NextRequest) {
             : app.formData;
           
           if (formData.applicants && Array.isArray(formData.applicants) && formData.applicants.length > 0) {
+            // Check first applicant (index 0)
             const firstApplicant = formData.applicants[0];
-            firstApplicantName = firstApplicant.name || 'N/A';
+            if (firstApplicant) {
+              // If first applicant has name, use it
+              if (firstApplicant.name && firstApplicant.name.trim() !== '') {
+                displayName = firstApplicant.name.trim();
+              }
+              // If no name but has m/s name (companyName), use it
+              else if (firstApplicant.companyName && firstApplicant.companyName.trim() !== '') {
+                displayName = firstApplicant.companyName.trim();
+              }
+            }
+            
+            // If first applicant has no name and no m/s name, check third applicant (index 2)
+            if (displayName === 'N/A' && formData.applicants.length > 2) {
+              const thirdApplicant = formData.applicants[2];
+              if (thirdApplicant) {
+                // If third applicant has name, use it
+                if (thirdApplicant.name && thirdApplicant.name.trim() !== '') {
+                  displayName = thirdApplicant.name.trim();
+                }
+                // If no name but has m/s firm name (companyName), use it
+                else if (thirdApplicant.companyName && thirdApplicant.companyName.trim() !== '') {
+                  displayName = thirdApplicant.companyName.trim();
+                }
+              }
+            }
           }
         }
       } catch (error) {
@@ -57,7 +83,7 @@ export async function GET(request: NextRequest) {
         updatedAt: app.updatedAt,
         applicantCount: app.applicantCount,
         bhkType: app.bhkType,
-        firstApplicantName: firstApplicantName,
+        firstApplicantName: displayName,
       };
     });
 
