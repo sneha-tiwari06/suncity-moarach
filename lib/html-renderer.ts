@@ -153,7 +153,7 @@ function renderCharacterBoxesHTML(value: string, initialBoxCount: number = 28, b
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 0;
+      gap: 1px;
       width: 100%;
     ">${rowsHTML}</div>
   `;
@@ -183,7 +183,7 @@ export function renderSignatureFooterHTML(formData: FormData): string {
           <div style="margin-bottom: 4px; text-align: center;">
             <span style="color: #58595b; font-style: italic; font-size: 11px;">Sole/First Applicant</span>
           </div>
-          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
+          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; overflow: hidden; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
             <img src="${formData.applicants[0].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
           </div>
         </div>
@@ -201,7 +201,7 @@ export function renderSignatureFooterHTML(formData: FormData): string {
           <div style="margin-bottom: 4px; text-align: center;">
             <span style="color: #58595b; font-style: italic; font-size: 11px;">Second Applicant</span>
           </div>
-          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
+          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; overflow: hidden; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
             <img src="${formData.applicants[1].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
           </div>
         </div>
@@ -219,7 +219,7 @@ export function renderSignatureFooterHTML(formData: FormData): string {
           <div style="margin-bottom: 4px; text-align: center;">
             <span style="color: #58595b; font-style: italic; font-size: 11px;">Third Applicant</span>
           </div>
-          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
+          <div style="border: 1px dashed #ee1e23; background-color: white; border-radius: 12px; overflow: hidden; width: 150px; height: 45px; display: flex; align-items: center; justify-content: center;">
             <img src="${formData.applicants[2].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
           </div>
         </div>
@@ -267,17 +267,17 @@ export function renderSignatureFooterOverlayHTML(formData: FormData): string {
         }
         .signature-footer-wrapper {
           position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
+          bottom: 24px;
+          left: 24px;
+          right: 24px;
           background-color: white;
           padding: 20px;
-          padding-top: 40px;
         }
         .signature-footer {
           display: flex;
           align-items: flex-start;
           gap: 20px;
+          margin-top: 100px;
           justify-content: space-between;
         }
       </style>
@@ -430,16 +430,12 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
         .container {
           width: 100%;
           padding: 20px;
-          margin-top: 40px;
           border: 1px solid #58595b;
           box-sizing: border-box;
           min-height: calc(${CONTAINER_HEIGHT}mm - 48px);
           display: grid;
           grid-template-rows: 65px 1fr auto;
           position: relative;
-        }
-        body > main > .container:first-child {
-          margin-top: 20px;
         }
         .header {
           margin-bottom: 12px;
@@ -470,7 +466,6 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           flex-wrap: wrap;
           flex-direction: column;
           gap: 12px;
-          margin-bottom: 12px;
         }
         .fields-left-container {
           display: flex;
@@ -544,11 +539,11 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           gap: 2px;
         }
         .signature-footer {
-          padding-bottom: 12px;
           display: flex;
           align-items: flex-start;
           gap: 20px;
           justify-content: space-between;
+          margin-top: 100px;
         }
       </style>
     </head>
@@ -953,11 +948,11 @@ export function renderApartmentFormHTML(formData: FormData): string {
           gap: 12px;
         }
         .signature-footer {
-          padding-bottom: 12px;
           display: flex;
           align-items: flex-start;
           gap: 20px;
           justify-content: space-between;
+          margin-top: 100px;
         }
       </style>
     </head>

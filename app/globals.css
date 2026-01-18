@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* Pixel-Perfect A4 PDF Print Styles */
 @page {
   size: A4;
