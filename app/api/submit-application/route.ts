@@ -33,49 +33,50 @@ export async function POST(request: NextRequest) {
     // Read the original PDF
     const originalPdfBytes = fs.readFileSync(pdfPath);
 
-    // Helper function to get image for BHK type
-    const getImageForBHK = async (bhkType: string | undefined): Promise<Uint8Array | null> => {
-      // If no BHK type is provided, return null (no image will be inserted)
-      if (!bhkType || bhkType.trim() === '') {
-        return null;
-      }
-      
-      try {
-        const imageFolder = path.join(process.cwd(), 'public', 'images', bhkType.toLowerCase());
-        
-        if (!fs.existsSync(imageFolder)) {
-          console.warn(`Image folder not found: ${imageFolder}`);
-          return null;
-        }
-        
-        const files = fs.readdirSync(imageFolder).filter(file => 
-          /\.(jpg|jpeg|png|gif)$/i.test(file)
-        );
-        
-        if (files.length === 0) {
-          console.warn(`No image found in ${imageFolder}`);
-          return null;
-        }
-        
-        const imagePath = path.join(imageFolder, files[0]);
-        const imageBytes = fs.readFileSync(imagePath);
-        return new Uint8Array(imageBytes);
-      } catch (error) {
-        console.error(`Error loading image for ${bhkType}:`, error);
-        return null;
-      }
-    };
-
     // Connect to MongoDB
     await connectDB();
+
+    // Generate sequential application ID
+    const generateApplicationId = async (): Promise<string> => {
+      // Find all applications with applicationId and get the highest number
+      const applications = await Application.find(
+        { applicationId: { $exists: true, $ne: null } },
+        { applicationId: 1 }
+      )
+        .sort({ createdAt: -1 })
+        .lean();
+
+      let maxNumber = 0;
+
+      // Find the highest number from existing applicationIds
+      applications.forEach((app) => {
+        if (app.applicationId) {
+          const match = app.applicationId.match(/SUNMON-(\d+)/);
+          if (match) {
+            const num = parseInt(match[1], 10);
+            if (num > maxNumber) {
+              maxNumber = num;
+            }
+          }
+        }
+      });
+
+      // Increment by 1
+      const nextNumber = maxNumber + 1;
+
+      // Format as SUNMON-XXXXXX (6 digits)
+      const formattedNumber = nextNumber.toString().padStart(6, '0');
+      return `SUNMON-${formattedNumber}`;
+    };
+
+    const applicationId = await generateApplicationId();
 
     // Generate the filled PDF
     const pdfBytes = await generateFilledPDF(
       new Uint8Array(originalPdfBytes),
       formData,
       applicantCount,
-      bhkType,
-      getImageForBHK
+      bhkType
     );
 
     // Upload PDF to Vercel Blob Storage to avoid MongoDB 16MB document limit
@@ -90,16 +91,26 @@ export async function POST(request: NextRequest) {
 
     // Save to database with pdfUrl (no size limit)
     const application = await Application.create({
+      applicationId,
       formData: JSON.stringify(formData),
       pdfUrl: blob.url, // Store URL to PDF in cloud storage
       applicantCount,
       bhkType,
     });
 
+    // Ensure applicationId is saved - refresh from database if needed
+    const savedApplication = await Application.findById(application._id);
+    const finalApplicationId = savedApplication?.applicationId || application.applicationId || application._id.toString();
+
+    // Log for debugging
+    console.log('Generated Application ID:', applicationId);
+    console.log('Saved Application ID:', savedApplication?.applicationId);
+    console.log('Final Application ID returned:', finalApplicationId);
+
     // Return JSON with application ID (not the PDF)
     return NextResponse.json({
       success: true,
-      applicationId: application._id.toString(),
+      applicationId: finalApplicationId,
       message: 'Application submitted successfully',
     });
   } catch (error) {

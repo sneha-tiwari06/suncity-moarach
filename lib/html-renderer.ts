@@ -160,10 +160,10 @@ function renderCharacterBoxesHTML(value: string, initialBoxCount: number = 28, b
 }
 
 /**
- * Render signature footer HTML - matches preview page exactly
- * Shows all available signatures (first, second, third) on all pages
+ * Render signature footer HTML - shows all available signatures dynamically
+ * Can be used as overlay for static pages or as footer in dynamic pages
  */
-function renderSignatureFooterHTML(formData: FormData): string {
+export function renderSignatureFooterHTML(formData: FormData): string {
   const hasFirstSignature = formData.applicants[0]?.signature;
   const hasSecondSignature = formData.applicants[1]?.signature;
   const hasThirdSignature = formData.applicants[2]?.signature;
@@ -171,7 +171,7 @@ function renderSignatureFooterHTML(formData: FormData): string {
   // Show all available signatures on all pages
   if (!hasFirstSignature && !hasSecondSignature && !hasThirdSignature) return '';
 
-  let html = '<div style="padding-bottom: 12px; display: flex; align-items: flex-start; gap: 20px; justify-content: space-between; align-self: end;">';
+  let html = '<div class="signature-footer">';
 
   if (hasFirstSignature) {
     html += `
@@ -187,7 +187,7 @@ function renderSignatureFooterHTML(formData: FormData): string {
             <img src="${formData.applicants[0].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
           </div>
         </div>
-      <div>
+      </div>
     `;
   }
 
@@ -205,7 +205,7 @@ function renderSignatureFooterHTML(formData: FormData): string {
             <img src="${formData.applicants[1].signature}" alt="Signature" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
           </div>
         </div>
-      <div>
+      </div>
     `;
   }
 
@@ -229,6 +229,66 @@ function renderSignatureFooterHTML(formData: FormData): string {
 
   html += '</div>';
   return html;
+}
+
+/**
+ * Render signature footer HTML as standalone overlay page for static PDF pages
+ * This creates a full A4 page with footer overlay that can be merged with static pages
+ */
+export function renderSignatureFooterOverlayHTML(formData: FormData): string {
+  const signatureFooter = renderSignatureFooterHTML(formData);
+  
+  if (!signatureFooter) return '';
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=612, initial-scale=1.0">
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        html, body {
+          width: 210mm;
+          max-width: 210mm;
+          min-width: 210mm;
+          height: 297mm;
+          min-height: 297mm;
+          max-height: 297mm;
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+          background: transparent;
+          overflow: hidden;
+        }
+        .signature-footer-wrapper {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background-color: white;
+          padding: 20px;
+          padding-top: 40px;
+        }
+        .signature-footer {
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          justify-content: space-between;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="signature-footer-wrapper">
+        ${signatureFooter}
+      </div>
+    </body>
+    </html>
+  `;
 }
 
 /**
@@ -352,13 +412,11 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           min-width: ${CONTAINER_WIDTH}mm;
           height: ${CONTAINER_HEIGHT}mm;
           min-height: ${CONTAINER_HEIGHT}mm;
-          max-height: ${CONTAINER_HEIGHT}mm;
           margin: 0;
           padding: 0;
           font-family: Arial, sans-serif;
           font-size: 13px;
           background: white;
-          overflow: hidden;
           color: #58595b;
         }
         main{
@@ -368,17 +426,20 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           min-width: ${CONTAINER_WIDTH}mm;
           height: ${CONTAINER_HEIGHT}mm;
           min-height: ${CONTAINER_HEIGHT}mm;
-          max-height: ${CONTAINER_HEIGHT}mm;
         }
         .container {
           width: 100%;
           padding: 20px;
+          margin-top: 40px;
           border: 1px solid #58595b;
-          overflow: hidden;
           box-sizing: border-box;
-          height: 100%;
+          min-height: calc(${CONTAINER_HEIGHT}mm - 48px);
           display: grid;
-          grid-template-rows: 65px auto auto;
+          grid-template-rows: 65px 1fr auto;
+          position: relative;
+        }
+        body > main > .container:first-child {
+          margin-top: 20px;
         }
         .header {
           margin-bottom: 12px;
@@ -481,6 +542,13 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
           display: flex;
           flex-direction: column;
           gap: 2px;
+        }
+        .signature-footer {
+          padding-bottom: 12px;
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          justify-content: space-between;
         }
       </style>
     </head>
@@ -619,6 +687,10 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                     <div class="multi-line-field">
                       ${Array.from({ length: 2 }, (_, i) => {
                         const lineValue = i === 0 ? (applicant.regOfficeLine1 || '') : (applicant.regOfficeLine2 || '');
+                        // Only create boxes if there's content, otherwise show empty
+                        if (!lineValue || lineValue.trim() === '') {
+                          return '<div></div>';
+                        }
                         return `<div>${renderCharacterBoxesHTML(lineValue, 25, APPLICANT_BOX_WIDTH)}</div>`;
                       }).join('')}
                     </div>
@@ -629,6 +701,10 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                     <div class="multi-line-field">
                       ${Array.from({ length: 2 }, (_, i) => {
                         const lineValue = i === 0 ? (applicant.authorizedSignatoryLine1 || '') : (applicant.authorizedSignatoryLine2 || '');
+                        // Only create boxes if there's content, otherwise show empty
+                        if (!lineValue || lineValue.trim() === '') {
+                          return '<div></div>';
+                        }
                         return `<div>${renderCharacterBoxesHTML(lineValue, 28, APPLICANT_BOX_WIDTH)}</div>`;
                       }).join('')}
                     </div>
@@ -663,7 +739,7 @@ export function renderApplicantFormHTML(applicant: ApplicantData, applicantNumbe
                     <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
                       <div class="field-row">
                         <div class="label">E-mail ID:</div>
-                        ${renderCharacterBoxesHTML(applicant.companyEmail || '', 22, APPLICANT_BOX_WIDTH)}
+                        ${renderCharacterBoxesHTML(applicant.companyEmail || '', 11, APPLICANT_BOX_WIDTH)}
                       </div>
                     </div>
                     <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
@@ -776,13 +852,11 @@ export function renderApartmentFormHTML(formData: FormData): string {
           min-width: ${CONTAINER_WIDTH}mm;
           height: ${CONTAINER_HEIGHT}mm;
           min-height: ${CONTAINER_HEIGHT}mm;
-          max-height: ${CONTAINER_HEIGHT}mm;
           margin: 0;
           padding: 0;
           font-family: Arial, sans-serif;
           font-size: 13px;
           background: white;
-          overflow: hidden;
           color: #58595b;
         }
         main{
@@ -792,17 +866,20 @@ export function renderApartmentFormHTML(formData: FormData): string {
           min-width: ${CONTAINER_WIDTH}mm;
           height: ${CONTAINER_HEIGHT}mm;
           min-height: ${CONTAINER_HEIGHT}mm;
-          max-height: ${CONTAINER_HEIGHT}mm;
         }
         .container {
           width: 100%;
           padding: 20px;
+          padding-top: 40px;
           border: 1px solid #58595b;
-          overflow: hidden;
           box-sizing: border-box;
-          height: 100%;
+          min-height: calc(${CONTAINER_HEIGHT}mm - 48px);
           display: grid;
-          grid-template-rows: 65px auto auto;
+          grid-template-rows: 65px 1fr auto;
+          position: relative;
+        }
+        body > main > .container:first-child {
+          padding-top: 20px;
         }
         .header {
           margin-bottom: 12px;
@@ -874,6 +951,13 @@ export function renderApartmentFormHTML(formData: FormData): string {
           display: flex;
           align-items: center;
           gap: 12px;
+        }
+        .signature-footer {
+          padding-bottom: 12px;
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          justify-content: space-between;
         }
       </style>
     </head>

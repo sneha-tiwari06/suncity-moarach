@@ -12,7 +12,14 @@ export async function GET(
     await connectDB();
 
     const { id } = await params;
-    const application = await Application.findById(id);
+    
+    // Support both MongoDB _id and readable applicationId (SUNMON-XXXXXX)
+    let application;
+    if (id.startsWith('SUNMON-')) {
+      application = await Application.findOne({ applicationId: id });
+    } else {
+      application = await Application.findById(id);
+    }
 
     if (!application) {
       return NextResponse.json(
@@ -71,11 +78,12 @@ export async function GET(
       );
     }
 
+    const displayId = application.applicationId || application._id.toString();
     return new NextResponse(pdfBytes as unknown as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="application-${application._id.toString()}.pdf"`,
+        'Content-Disposition': `inline; filename="application-${displayId}.pdf"`,
       },
     });
   } catch (error) {

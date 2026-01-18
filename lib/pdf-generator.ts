@@ -1,5 +1,5 @@
 import { PDFDocument, PDFPage, PDFImage, rgb, StandardFonts, PDFFont } from 'pdf-lib';
-import { formCoordinates, signatureCoordinates, page21ImageCoordinates } from './pdf-coordinates';
+import { formCoordinates, signatureCoordinates } from './pdf-coordinates';
 import { FormData } from './types';
 import { pdfFieldConfigs, PDFFieldConfig } from './pdf-field-config';
 import { fillFieldWithOverflow, formatFieldValue } from './pdf-overflow-handler';
@@ -9,8 +9,7 @@ export async function generateFilledPDF(
   originalPdfBytes: Uint8Array,
   formData: FormData,
   applicantCount: number,
-  bhkType: string,
-  getImageForBHK: (bhkType: string) => Promise<Uint8Array | null>
+  bhkType: string
 ): Promise<Uint8Array> {
   
   // Load the PDF document
@@ -54,13 +53,6 @@ export async function generateFilledPDF(
     await fillSignature(pages[7], declarationSignature, signatureCoordinates[8], pdfDoc);
   }
   
-  // Fill Page 21 - Add BHK Image
-  if (bhkType && pages[20]) {
-    const imageBytes = await getImageForBHK(bhkType);
-    if (imageBytes) {
-      await fillPage21Image(pages[20], imageBytes, page21ImageCoordinates, pdfDoc);
-    }
-  }
   
   // Ensure A4 dimensions (612 × 792 points) - enforce on all pages
   pages.forEach(page => {
@@ -454,33 +446,3 @@ async function fillSignature(
   }
 }
 
-async function fillPage21Image(
-  page: PDFPage,
-  imageBytes: Uint8Array,
-  imageCoord: any,
-  pdfDoc: PDFDocument
-) {
-  try {
-    // Determine image type and embed
-    // Try PNG first, then JPG
-    let image: PDFImage;
-    try {
-      image = await pdfDoc.embedPng(imageBytes);
-    } catch {
-      image = await pdfDoc.embedJpg(imageBytes);
-    }
-    
-    const pageHeight = page.getHeight();
-    const adjustedY = pageHeight - imageCoord.y - imageCoord.height;
-    
-    // Draw the image
-    page.drawImage(image, {
-      x: imageCoord.x,
-      y: adjustedY,
-      width: imageCoord.width,
-      height: imageCoord.height,
-    });
-  } catch (error) {
-    console.error('Error embedding image:', error);
-  }
-}

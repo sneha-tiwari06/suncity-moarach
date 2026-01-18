@@ -653,7 +653,7 @@ export default function ApplicantForm({
               onChange={(e) => handleFieldChange('itWard', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter IT assessment details"
-              maxLength={50}
+             
             />
           </div>
 
@@ -748,7 +748,7 @@ export default function ApplicantForm({
                     onChange={(e) => handleFieldChange('companyName', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter company/firm name"
-                    maxLength={100}
+                    
                   />
                 </div>
 
@@ -762,7 +762,6 @@ export default function ApplicantForm({
                     onChange={(e) => handleFieldChange('regOfficeLine1', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
                     placeholder=""
-                    maxLength={100}
                   />
                 </div>
 
@@ -777,7 +776,6 @@ export default function ApplicantForm({
                     onChange={(e) => handleFieldChange('authorizedSignatoryLine1', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
                     placeholder=""
-                    maxLength={100}
                   />
                 </div>
 
@@ -792,7 +790,7 @@ export default function ApplicantForm({
                     onChange={(e) => handleFieldChange('boardResolutionDate', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter date or reference"
-                    maxLength={100}
+                  
                   />
                   <p className="mt-1 text-xs text-gray-500">
                     (attach a certified true copy of the Board Resolution/Power of Attorney)

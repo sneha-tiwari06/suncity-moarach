@@ -24,34 +24,6 @@ export async function POST(request: NextRequest) {
     // Read the original PDF
     const originalPdfBytes = fs.readFileSync(pdfPath);
 
-    // Helper function to get image for BHK type
-    const getImageForBHK = async (bhkType: string): Promise<Uint8Array | null> => {
-      try {
-        const imageFolder = path.join(process.cwd(), 'public', 'images', bhkType.toLowerCase());
-        
-        if (!fs.existsSync(imageFolder)) {
-          console.warn(`Image folder not found: ${imageFolder}`);
-          return null;
-        }
-        
-        const files = fs.readdirSync(imageFolder).filter(file => 
-          /\.(jpg|jpeg|png|gif)$/i.test(file)
-        );
-        
-        if (files.length === 0) {
-          console.warn(`No image found in ${imageFolder}`);
-          return null;
-        }
-        
-        const imagePath = path.join(imageFolder, files[0]);
-        const imageBytes = fs.readFileSync(imagePath);
-        return new Uint8Array(imageBytes);
-      } catch (error) {
-        console.error(`Error loading image for ${bhkType}:`, error);
-        return null;
-      }
-    };
-
     // Connect to MongoDB
     await connectDB();
 
@@ -60,8 +32,7 @@ export async function POST(request: NextRequest) {
       new Uint8Array(originalPdfBytes),
       formData,
       applicantCount,
-      bhkType,
-      getImageForBHK
+      bhkType
     );
 
     // Save to database

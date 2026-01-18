@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Document, Page } from 'react-pdf';
-import { formCoordinates, signatureCoordinates, page21ImageCoordinates } from '@/lib/pdf-coordinates';
+import { formCoordinates, signatureCoordinates } from '@/lib/pdf-coordinates';
 import { validateAadhaar, validatePAN, validatePhone, validateEmail, formatAadhaar, formatPAN, formatPhone } from '@/lib/utils';
 import { FormData, ApplicantData } from '@/lib/types';
 import '@/lib/pdfjs-worker'; // Configure PDF.js worker

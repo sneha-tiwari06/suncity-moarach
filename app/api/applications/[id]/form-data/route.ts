@@ -10,9 +10,18 @@ export async function GET(
     await connectDB();
 
     const { id } = await params;
-    const application = await Application.findById(id)
-      .select('formData applicantCount bhkType')
-      .lean();
+    
+    // Support both MongoDB _id and readable applicationId (SUNMON-XXXXXX)
+    let application;
+    if (id.startsWith('SUNMON-')) {
+      application = await Application.findOne({ applicationId: id })
+        .select('formData applicantCount bhkType')
+        .lean();
+    } else {
+      application = await Application.findById(id)
+        .select('formData applicantCount bhkType')
+        .lean();
+    }
 
     if (!application) {
       return NextResponse.json(

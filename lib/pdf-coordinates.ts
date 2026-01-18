@@ -93,11 +93,3 @@ export const signatureCoordinates: { [pageNumber: number]: FieldCoordinate } = {
   8: { x: 400, y: 100, width: 150, height: 50, fontSize: 10 },
   // Add signature coordinates for other pages if needed
 };
-
-// Image insertion coordinates for page 21 (SCHEDULE - B)
-export const page21ImageCoordinates: FieldCoordinate = {
-  x: 72, // 1 inch margin
-  y: 400, // Adjust based on actual position
-  width: 450, // Adjust based on image size
-  height: 300, // Adjust based on image size
-};

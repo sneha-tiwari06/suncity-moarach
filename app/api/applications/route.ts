@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const applications = await Application.find({})
       .select({
         _id: 1,
+        applicationId: 1, // Include readable application ID
         formData: 1, // Include formData to extract applicant name
         applicantCount: 1,
         bhkType: 1,
@@ -50,7 +51,8 @@ export async function GET(request: NextRequest) {
       }
 
       return {
-        id: app._id.toString(),
+        id: app.applicationId || app._id.toString(), // Use readable ID if available
+        applicationId: app.applicationId, // Include applicationId field
         createdAt: app.createdAt,
         updatedAt: app.updatedAt,
         applicantCount: app.applicantCount,

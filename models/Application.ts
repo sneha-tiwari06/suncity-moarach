@@ -6,6 +6,7 @@ if (typeof mongoose.models === 'undefined') {
 }
 
 export interface IApplication extends Document {
+  applicationId?: string; // Readable application ID in format SUNMON-XXXXXX
   formData: string; // JSON string of form data
   pdfPath?: string; // Path to PDF file in filesystem (instead of buffer to avoid 16MB limit)
   pdfBuffer?: string; // Base64 encoded PDF (deprecated - use pdfUrl instead)
@@ -18,6 +19,12 @@ export interface IApplication extends Document {
 
 const ApplicationSchema: Schema = new Schema(
   {
+    applicationId: {
+      type: String,
+      required: false,
+      unique: true,
+      sparse: true, // Allow null/undefined but enforce uniqueness when present
+    },
     formData: {
       type: String,
       required: true,
@@ -49,8 +56,9 @@ const ApplicationSchema: Schema = new Schema(
   }
 );
 
-// Create index for faster queries
+// Create indexes for faster queries
 ApplicationSchema.index({ createdAt: -1 });
+ApplicationSchema.index({ applicationId: 1 });
 
 // Safely check for existing model or create new one
 let Application: Model<IApplication>;
