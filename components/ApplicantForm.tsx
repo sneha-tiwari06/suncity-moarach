@@ -185,6 +185,23 @@ export default function ApplicantForm({
         return requiredFields[field];
       }
     }
+    // For applicant 3, validate photograph and signature if they have any data
+    else if (applicantNumber === 3) {
+      // Check if applicant 3 has any data
+      const hasData = data.name || data.companyName || data.regOfficeLine1 || 
+                     data.authorizedSignatoryLine1 || data.companyPanOrTin;
+      
+      if (hasData) {
+        // If applicant 3 has data, photograph is required
+        if (field === 'photograph' && (!value || (typeof value === 'string' && value.trim() === ''))) {
+          return 'Photograph is required';
+        }
+        // Signature is also required if they have data
+        if (field === 'signature' && (!value || (typeof value === 'string' && value.trim() === ''))) {
+          return 'Signature is required';
+        }
+      }
+    }
 
     // Format validation (only if value exists)
     if (field === 'aadhaar' && value) {
@@ -241,37 +258,57 @@ export default function ApplicantForm({
 
   // Validate all required fields
   const validateAllFields = () => {
-    if (applicantNumber !== 1 && applicantNumber !== 2) {
-      return; // Only validate applicants 1 and 2
-    }
-
     const newErrors: { [key: string]: string } = {};
-    const requiredFields: (keyof ApplicantData)[] = [
-      'title',
-      'name',
-      'relation',
-      'sonWifeDaughterOf',
-      'nationality',
-      'dob',
-      'age',
-      'profession',
-      'aadhaar',
-      'residentialStatus',
-      'pan',
-      'correspondenceAddress',
-      'phone',
-      'email',
-      'photograph',
-      'signature',
-    ];
+    
+    // Strict validation for applicants 1 and 2
+    if (applicantNumber === 1 || applicantNumber === 2) {
+      const requiredFields: (keyof ApplicantData)[] = [
+        'title',
+        'name',
+        'relation',
+        'sonWifeDaughterOf',
+        'nationality',
+        'dob',
+        'age',
+        'profession',
+        'aadhaar',
+        'residentialStatus',
+        'pan',
+        'correspondenceAddress',
+        'phone',
+        'email',
+        'photograph',
+        'signature',
+      ];
 
-    // Validate all required fields
-    requiredFields.forEach((field) => {
-      const error = validateField(field, data[field]);
-      if (error) {
-        newErrors[field] = error;
+      // Validate all required fields
+      requiredFields.forEach((field) => {
+        const error = validateField(field, data[field]);
+        if (error) {
+          newErrors[field] = error;
+        }
+      });
+    }
+    // For applicant 3, validate photograph and signature if they have data
+    else if (applicantNumber === 3) {
+      // Check if applicant 3 has any data
+      const hasData = data.name || data.companyName || data.regOfficeLine1 || 
+                     data.authorizedSignatoryLine1 || data.companyPanOrTin;
+      
+      if (hasData) {
+        // Validate photograph
+        const photographError = validateField('photograph', data.photograph);
+        if (photographError) {
+          newErrors.photograph = photographError;
+        }
+        
+        // Validate signature
+        const signatureError = validateField('signature', data.signature);
+        if (signatureError) {
+          newErrors.signature = signatureError;
+        }
       }
-    });
+    }
 
     setErrors(newErrors);
     

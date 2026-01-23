@@ -63,6 +63,7 @@ export default function Home() {
         correspondenceAddress: 'Correspondence Address',
         phone: 'Mobile number',
         email: 'Email',
+        photograph: 'Photograph',
         signature: 'Signature',
       };
 
@@ -94,6 +95,23 @@ export default function Home() {
         errors.push(`Invalid email address for Applicant ${applicantNumber}`);
       }
     }
+    // For applicant 3, validate photograph if they have any data
+    else if (applicantNumber === 3) {
+      // Check if applicant 3 has any data
+      const hasData = applicant.name || applicant.companyName || applicant.regOfficeLine1 || 
+                     applicant.authorizedSignatoryLine1 || applicant.companyPanOrTin;
+      
+      if (hasData) {
+        // If applicant 3 has data, photograph is required
+        if (!applicant.photograph || (typeof applicant.photograph === 'string' && applicant.photograph.trim() === '')) {
+          errors.push(`Photograph is required for Applicant ${applicantNumber}`);
+        }
+        // Signature is also required if they have data
+        if (!applicant.signature || (typeof applicant.signature === 'string' && applicant.signature.trim() === '')) {
+          errors.push(`Signature is required for Applicant ${applicantNumber}`);
+        }
+      }
+    }
     
     return errors;
   };
@@ -105,68 +123,85 @@ export default function Home() {
     // Wait a bit for validation to complete, then scroll to first error
     await new Promise(resolve => setTimeout(resolve, 200));
     
-    // Scroll to first error field across all applicants
-    // Note: We don't auto-focus to avoid interrupting user typing
-    const errorFields = document.querySelectorAll('[data-field-name]');
-    for (const field of Array.from(errorFields)) {
-      const input = field.querySelector('input, select, textarea') as HTMLElement;
-      if (input && (input.classList.contains('border-red-500') || field.querySelector('.text-red-500'))) {
-        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // Don't auto-focus to avoid interrupting user typing
-        break;
+    // Calculate applicant count
+    // For applicants 1 and 2, check if name exists
+    // For applicant 3, check if any data exists (name or company fields)
+    let applicantCount = 0;
+    if (formData.applicants[0] && formData.applicants[0].name && formData.applicants[0].name.trim() !== '') {
+      applicantCount++;
+    }
+    if (formData.applicants[1] && formData.applicants[1].name && formData.applicants[1].name.trim() !== '') {
+      applicantCount++;
+    }
+    if (formData.applicants[2] && hasApplicant3Data(formData.applicants[2])) {
+      applicantCount++;
+    }
+    
+    if (applicantCount === 0) {
+      alert('Please fill at least one applicant form before submitting.');
+      return;
+    }
+
+    // Check if third applicant was added directly (skipped mode)
+    // This happens when applicant 3 exists, applicant 2 is empty (placeholder), and applicant 1 might be empty
+    const isThirdApplicantSkippedMode = 
+      formData.applicants.length >= 3 && 
+      formData.applicants[2] &&
+      (!formData.applicants[1] || !formData.applicants[1].name || formData.applicants[1].name.trim() === '');
+    
+    // Strict validation for applicants 1 and 2
+    const validationErrors: string[] = [];
+    
+    // Validate applicant 1 only if third applicant was NOT added directly (skip mode)
+    // When third applicant is added directly, applicant 1 becomes optional
+    if (formData.applicants[0] && !isThirdApplicantSkippedMode) {
+      const errors1 = validateApplicant(formData.applicants[0], 1);
+      validationErrors.push(...errors1);
+    }
+    // If applicant 1 has data even in skipped mode, validate photograph
+    else if (formData.applicants[0] && isThirdApplicantSkippedMode) {
+      const hasData = formData.applicants[0].name && formData.applicants[0].name.trim() !== '';
+      if (hasData) {
+        if (!formData.applicants[0].photograph || (typeof formData.applicants[0].photograph === 'string' && formData.applicants[0].photograph.trim() === '')) {
+          validationErrors.push('Photograph is required for Applicant 1');
+        }
+        if (!formData.applicants[0].signature || (typeof formData.applicants[0].signature === 'string' && formData.applicants[0].signature.trim() === '')) {
+          validationErrors.push('Signature is required for Applicant 1');
+        }
       }
     }
     
+    // Validate applicant 2 if exists
+    if (formData.applicants[1] && formData.applicants[1].name && formData.applicants[1].name.trim() !== '') {
+      const errors2 = validateApplicant(formData.applicants[1], 2);
+      validationErrors.push(...errors2);
+    }
+    
+    // Validate applicant 3 if they have data
+    if (formData.applicants[2] && hasApplicant3Data(formData.applicants[2])) {
+      const errors3 = validateApplicant(formData.applicants[2], 3);
+      validationErrors.push(...errors3);
+    }
+
+    // If there are validation errors, prevent submission (errors are shown in fields)
+    if (validationErrors.length > 0) {
+      // Scroll to first error field across all applicants
+      const errorFields = document.querySelectorAll('[data-field-name]');
+      for (const field of Array.from(errorFields)) {
+        const input = field.querySelector('input, select, textarea') as HTMLElement;
+        if (input && (input.classList.contains('border-red-500') || field.querySelector('.text-red-500'))) {
+          field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          break;
+        }
+      }
+      // Show alert with validation errors
+      alert(`Please fix the following errors:\n\n${validationErrors.join('\n')}`);
+      return;
+    }
+    
+    // All validation passed, proceed with submission
     setIsSubmitting(true);
     try {
-      // Calculate applicant count
-      // For applicants 1 and 2, check if name exists
-      // For applicant 3, check if any data exists (name or company fields)
-      let applicantCount = 0;
-      if (formData.applicants[0] && formData.applicants[0].name && formData.applicants[0].name.trim() !== '') {
-        applicantCount++;
-      }
-      if (formData.applicants[1] && formData.applicants[1].name && formData.applicants[1].name.trim() !== '') {
-        applicantCount++;
-      }
-      if (formData.applicants[2] && hasApplicant3Data(formData.applicants[2])) {
-        applicantCount++;
-      }
-      
-      if (applicantCount === 0) {
-        alert('Please fill at least one applicant form before submitting.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Check if third applicant was added directly (skipped mode)
-      // This happens when applicant 3 exists, applicant 2 is empty (placeholder), and applicant 1 might be empty
-      const isThirdApplicantSkippedMode = 
-        formData.applicants.length >= 3 && 
-        formData.applicants[2] &&
-        (!formData.applicants[1] || !formData.applicants[1].name || formData.applicants[1].name.trim() === '');
-      
-      // Strict validation for applicants 1 and 2
-      const validationErrors: string[] = [];
-      
-      // Validate applicant 1 only if third applicant was NOT added directly (skip mode)
-      // When third applicant is added directly, applicant 1 becomes optional
-      if (formData.applicants[0] && !isThirdApplicantSkippedMode) {
-        const errors1 = validateApplicant(formData.applicants[0], 1);
-        validationErrors.push(...errors1);
-      }
-      
-      // Validate applicant 2 if exists
-      if (formData.applicants[1] && formData.applicants[1].name && formData.applicants[1].name.trim() !== '') {
-        const errors2 = validateApplicant(formData.applicants[1], 2);
-        validationErrors.push(...errors2);
-      }
-
-      // If there are validation errors, prevent submission (errors are shown in fields)
-      if (validationErrors.length > 0) {
-        setIsSubmitting(false);
-        return;
-      }
 
       // Call API to submit application and generate PDF
       const response = await fetch('/api/submit-application', {
