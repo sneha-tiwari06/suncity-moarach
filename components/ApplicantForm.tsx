@@ -116,7 +116,8 @@ export default function ApplicantForm({
       field === 'boardResolutionDate'
     ) {
       // Capitalize first letter of each word for text fields
-      formattedValue = capitalizeFirstLetter(value);
+      // formattedValue = capitalizeFirstLetter(value);
+      formattedValue = value; // Keep original value without capitalization
     }
 
     // Validate
@@ -175,6 +176,7 @@ export default function ApplicantForm({
         correspondenceAddress: 'Correspondence Address is required',
         phone: 'Mobile number is required',
         email: 'Email is required',
+        photograph: 'Photograph is required',
         signature: 'Signature is required',
       };
 
@@ -259,6 +261,7 @@ export default function ApplicantForm({
       'correspondenceAddress',
       'phone',
       'email',
+      'photograph',
       'signature',
     ];
 
